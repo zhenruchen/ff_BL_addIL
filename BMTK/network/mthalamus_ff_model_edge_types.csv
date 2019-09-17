@@ -1,0 +1,4 @@
+edge_type_id target_query source_query delay syn_weight distance_range target_sections dynamics_params model_template
+100 pop_name=='Cell_A' * 2.0 0.1 "[0.0, 300.0]" ['somatic'] AMPA_ExcToExc.json Exp2Syn
+101 pop_name=='Cell_C' * 2.0 0.1 "[0.0, 300.0]" ['somatic'] AMPA_ExcToExc.json Exp2Syn
+102 pop_name=='Bask' * 2.0 0.1 "[0.0, 300.0]" ['somatic'] AMPA_ExcToExc.json Exp2Syn
