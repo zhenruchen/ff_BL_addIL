@@ -9,24 +9,40 @@ np.random.seed(91)
 netff = NetworkBuilder("ff_model")
 
 # Create the possible x,y,z coordinates
-xside_length = 600; yside_length = 600; height = 60; min_dist = 25;
+xside_length = 600; yside_length = 600; height = 600; min_dist = 25;
+ILxside_length = 800; ILyside_length =800;
+IL_height13=1200
+IL_height56=900
 x_grid = np.arange(0,xside_length+min_dist,min_dist)
 y_grid = np.arange(0,yside_length+min_dist,min_dist)
+
+ILx_grid = np.arange(-200,ILxside_length+min_dist,min_dist)
+ILy_grid = np.arange(-200,ILyside_length+min_dist,min_dist)
 z_grid = np.arange(0,height+min_dist,min_dist)
-xx, yy, zz = np.meshgrid(x_grid, y_grid, z_grid)
-pos_list = np.vstack([xx.ravel(), yy.ravel(), zz.ravel()]).T
-
+IL13_z_grid = np.arange(600+30+232+236+180,600+30+232+236+180+101+min_dist,min_dist)
+IL56_z_grid = np.arange(600+30+232,600+30+232+264+min_dist,min_dist)
+xxBL, yyBL, zzBL = np.meshgrid(x_grid, y_grid, z_grid)
+xxIL13, yyIL13, zzIL13 = np.meshgrid(x_grid, y_grid, IL13_z_grid)
+xxIL56, yyIL56, zzIL56 = np.meshgrid(x_grid, y_grid, IL56_z_grid)
+BL_pos_list = np.vstack([xxBL.ravel(), yyBL.ravel(), zzBL.ravel()]).T
+IL13_pos_list = np.vstack([xxIL13.ravel(), yyIL13.ravel(), zzIL13.ravel()]).T
+IL56_pos_list = np.vstack([xxIL56.ravel(), yyIL13.ravel(), zzIL56.ravel()]).T
 # Number of cells in each population
-numPN_A = 64
-numPN_C = 26
-numBask = 10
-
+global numPN_A = 640
+global numPN_C = 260
+global numBask = 100
+global numIL13_Pyr=230
+global numIL13_Bask=40
+global numIL56_Pyr=350
+global numIL56_Bask=60
+global numBL=numPN_A+numPN_C+numBask
+global numIL13=numIL13_Pyr+numIL13_Bask
 ###################################################################################
 ####################################Pyr Type A#####################################
 
 # Pick coordinates
-inds = np.random.choice(np.arange(0,np.size(pos_list,0)),numPN_A,replace=False)
-pos = pos_list[inds,:]
+inds = np.random.choice(np.arange(0,np.size(BL_pos_list,0)),numPN_A,replace=False)
+pos = BL_pos_list[inds,:]
 
 # Add a population of numPN_A nodes (all of which share model_type, dynamics_params, etc.)
 #net.add_nodes(N=numPN_A, pop_name='PyrA',
@@ -48,11 +64,11 @@ netff.add_nodes(N=numPN_A, pop_name='Cell_A',
 ###################################Pyr Type C#####################################
 
 # Get rid of coordinates already used
-pos_list = np.delete(pos_list,inds,0)
+pos_list = np.delete(BL_pos_list,inds,0)
 
 # Pick new coordinates
-inds = np.random.choice(np.arange(0,np.size(pos_list,0)),numPN_C,replace=False)
-pos = pos_list[inds,:]
+inds = np.random.choice(np.arange(0,np.size(BL_pos_list,0)),numPN_C,replace=False)
+pos = BL_pos_list[inds,:]
 
 # Add a population of numPN_C nodes (all of which share model_type, dynamics_params, etc.)
 #net.add_nodes(N=numPN_C, pop_name='PyrC',
@@ -74,11 +90,11 @@ netff.add_nodes(N=numPN_C, pop_name='Cell_C',
 ###########################Fast - spiking PV ints################################
 
 # Get rid of coordinates already used
-pos_list = np.delete(pos_list,inds,0)
+BL_pos_list = np.delete(pos_list,inds,0)
 
 # Pick new coordinates
-inds = np.random.choice(np.arange(0,np.size(pos_list,0)),numBask,replace=False)
-pos = pos_list[inds,:]
+inds = np.random.choice(np.arange(0,np.size(BL_pos_list,0)),numBask,replace=False)
+pos = BL_pos_list[inds,:]
 
 # Add a population of numBask nodes
 #net.add_nodes(N=numBask, pop_name='Bask',
@@ -89,30 +105,130 @@ pos = pos_list[inds,:]
 #              model_processing='aibs_perisomatic',
 #              dynamics_params='472363762_fit.json',
 #              morphology='Scnn1a_473845048_m.swc')
-netff.add_nodes(N=numBask,cell_name='Bask',
+netff.add_nodes(N=numBask,pop_name='Cell_Bask',
                 positions=positions_list(positions=pos),
-                potental='exc',
+                potental='inh',
                 model_type='biophysical',
                 model_template='hoc:Cell_PN',
                 morphology=None
                 )
 
 
+###################################################################################
+####################################IL13  Pyr #####################################
 
+# Pick coordinates
+inds = np.random.choice(np.arange(0,np.size(IL13_pos_list,0)),numIL13_Pyr,replace=False)
+pos = IL13_pos_list[inds,:]
+
+# Add a population of numPN_A nodes (all of which share model_type, dynamics_params, etc.)
+#net.add_nodes(N=numPN_A, pop_name='PyrA',
+#              positions=positions_list(positions=pos),
+#              mem_potential='e',
+#              model_type='biophysical',
+#              model_template='ctdb:Biophys1.hoc',
+#              model_processing='aibs_perisomatic',
+#              dynamics_params='472363762_fit.json',
+#              morphology='Scnn1a_473845048_m.swc')
+netff.add_nodes(N=numIL13_Pyr, pop_name='Cell_A',
+                positions=positions_list(positions=pos),
+                potental='exc',
+                model_type='biophysical',
+                model_template='hoc:Cell_A',
+                morphology=None
+                )
+
+#################################################################################
+###########################IL13 Interneuron################################
+
+# Get rid of coordinates already used
+IL13_pos_list = np.delete(IL13_pos_list,inds,0)
+
+# Pick new coordinates
+inds = np.random.choice(np.arange(0,np.size(IL13_pos_list,0)),numIL13_Bask,replace=False)
+pos = IL13_pos_list[inds,:]
+
+# Add a population of numBask nodes
+#net.add_nodes(N=numIl13_Bask, pop_name='Bask',
+#              positions=positions_list(positions=pos),
+#              mem_potential='e',
+#              model_type='biophysical',
+#              model_template='ctdb:Biophys1.hoc',
+#              model_processing='aibs_perisomatic',
+#              dynamics_params='472363762_fit.json',
+#              morphology='Scnn1a_473845048_m.swc')
+netff.add_nodes(N=numIL13_Bask,pop_name='Cell_Bask',
+                positions=positions_list(positions=pos),
+                potental='inh',
+                model_type='biophysical',
+                model_template='hoc:Cell_PN',
+                morphology=None
+                )
+
+###################################################################################
+####################################IL56  Pyr #####################################
+
+# Pick coordinates
+inds = np.random.choice(np.arange(0,np.size(IL56_pos_list,0)),numIL56_Pyr,replace=False)
+pos = IL56_pos_list[inds,:]
+
+# Add a population of numPN_A nodes (all of which share model_type, dynamics_params, etc.)
+#net.add_nodes(N=numPN_A, pop_name='PyrA',
+#              positions=positions_list(positions=pos),
+#              mem_potential='e',
+#              model_type='biophysical',
+#              model_template='ctdb:Biophys1.hoc',
+#              model_processing='aibs_perisomatic',
+#              dynamics_params='472363762_fit.json',
+#              morphology='Scnn1a_473845048_m.swc')
+netff.add_nodes(N=numIL56_Pyr, pop_name='Cell_A',
+                positions=positions_list(positions=pos),
+                potental='exc',
+                model_type='biophysical',
+                model_template='hoc:Cell_A',
+                morphology=None
+                )
+
+#################################################################################
+###########################IL56 Interneuron################################
+
+# Get rid of coordinates already used
+IL13_pos_list = np.delete(IL56_pos_list,inds,0)
+
+# Pick new coordinates
+inds = np.random.choice(np.arange(0,np.size(IL56_pos_list,0)),numIL56_Bask,replace=False)
+pos = IL56_pos_list[inds,:]
+
+# Add a population of numBask nodes
+#net.add_nodes(N=numIL56_Bask, pop_name='Bask',
+#              positions=positions_list(positions=pos),
+#              mem_potential='e',
+#              model_type='biophysical',
+#              model_template='ctdb:Biophys1.hoc',
+#              model_processing='aibs_perisomatic',
+#              dynamics_params='472363762_fit.json',
+#              morphology='Scnn1a_473845048_m.swc')
+netff.add_nodes(N=numIL56_Bask,pop_name='Cell_Bask',
+                positions=positions_list(positions=pos),
+                potental='inh',
+                model_type='biophysical',
+                model_template='hoc:Cell_PN',
+                morphology=None
+                )
 
 ##############################################################################
 ############################## CONNECT CELLS #################################
 
 def dist_conn_perc(source, target, prob=0.1, min_dist=0.0, max_dist=300.0, min_syns=1, max_syns=2):
-    print("???")
-    sid = src.node_id
-    tid = trg.node_id
+    #print("???")
+    sid = source.node_id
+    tid = target.node_id
     # No autapses
     if sid==tid:
         return None
     else:
-        src_pos = src['positions']
-        trg_pos = trg['positions']
+        src_pos = source['positions']
+        trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))        
 
@@ -160,7 +276,7 @@ def dist_conn_perc1(source, target,prob=0 ,min_dist=0, max_dist=600, min_syns=1,
         return tmp_nsyn
 
 # Create connections between Pyr --> Bask cells
-netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': 'Bask'},
+netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': 'Cell_Bask'},
                 connection_rule=dist_conn_perc,
                 connection_params={'prob':0.12,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
@@ -172,7 +288,7 @@ netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': 'B
 
 # Create connections between Bask --> Pyr cells
 print("?????")
-netff.add_edges(source={'pop_name': 'Bask'}, target={'pop_name': ['Cell_A','Cell_C']},
+netff.add_edges(source={'pop_name': 'Cell_Bask'}, target={'pop_name': ['Cell_A','Cell_C']},
                 connection_rule=dist_conn_perc,
                 connection_params={'prob':0.34,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
@@ -185,7 +301,7 @@ netff.add_edges(source={'pop_name': 'Bask'}, target={'pop_name': ['Cell_A','Cell
 # Create connections between Pyr --> Pyr cells
 netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': ['Cell_A','Cell_C']},
                 connection_rule=dist_conn_perc1,
-                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                connection_params={'prob':0.01,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
                 dynamics_params='AMPA_ExcToExc.json',
                 model_template='Exp2Syn',
@@ -194,8 +310,8 @@ netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': ['
                 delay=2.0
                 )
 # Create connections between Bask --> Bask cells
-netff.add_edges(source={'pop_name': 'Bask'}, target={'pop_name': 'Bask'},
-                connection_rule=dist_conn_perc1,
+netff.add_edges(source={'pop_name': 'Cell_Bask'}, target={'pop_name': 'Cell_Bask'},
+                connection_rule=dist_conn_perc,
                 connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
                 dynamics_params='GABA_InhToInh.json',
@@ -212,14 +328,17 @@ print("Internal nodes and edges built")
 # Create connections between "thalamus" and Pyramidals
 # First define the connection rule
 def one_to_one(source, target):
-    print("one to one")
+    #print("one to one")
     sid = source.node_id
     tid = target.node_id
+    
+    if tid > 89 :
+        print("working on Bask")
     if sid == tid:
         print("connecting cell {} to {}".format(sid,tid))
         tmp_nsyn = 1
     else:
-        return None
+        tmp_nsyn = 0
     return tmp_nsyn
 ################################################################################
 ############################# BACKGROUND INPUTS ################################
@@ -230,7 +349,7 @@ thalamus.add_nodes(N=numPN_A+numPN_C+numBask,
                    pop_name='tON',
                    potential='exc',
                    model_type='virtual')
-
+print(thalamus.nodes)
 thalamus.add_edges(source=thalamus.nodes(), target=netff.nodes(pop_name='Cell_A'),
                    connection_rule=one_to_one,
                    syn_weight=0.1,
@@ -248,14 +367,16 @@ thalamus.add_edges(source=thalamus.nodes(), target=netff.nodes(pop_name='Cell_C'
                    distance_range=[0.0, 300.0],
                    dynamics_params='AMPA_ExcToExc.json',
                    model_template='Exp2Syn')
-thalamus.add_edges(source=thalamus.nodes(), target=netff.nodes(pop_name='Bask'),
+
+thalamus.add_edges(source=thalamus.nodes(), target=netff.nodes(pop_name='Cell_Bask'),
                    connection_rule=one_to_one,
                    syn_weight=0.1,
                    target_sections=['somatic'],
                    delay=2.0,
-                   distance_range=[0.0, 300.0],
-                   dynamics_params='AMPA_ExcToExc.json',
+                   distance_range=[0.0, 600.0],
+                   dynamics_params='AMPA_ExcToInh.json',
                    model_template='Exp2Syn')
+
 # Build and save our network
 
 thalamus.build()

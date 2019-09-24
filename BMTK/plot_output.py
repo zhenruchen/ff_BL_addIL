@@ -20,7 +20,7 @@ mem_pot_file = './output/v_report.h5'
 f = h5py.File(mem_pot_file,'r')
 
 
-mem_potential = f['report']['ff']['data']
+mem_potential = f['report']['mthalamus']['data']
 plt.plot(mem_potential)
 
 

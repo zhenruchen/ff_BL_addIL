@@ -1,4 +1,3 @@
-from bmtk.analyzer.spike_trains import raster_plot, rates_plot
+from bmtk.analyzer.spike_trains import plot_raster, plot_rates
 
-rates_plot('network/SPWR_biophysical_nodes.h5', 'network/SPWR_biophysical_node_types.csv', 'output/spikes.h5', group_key='pop_name', smoothed=True)
-
+plot_rates(config_file='simulation_config.json')
