@@ -26,40 +26,40 @@ xxIL13, yyIL13, zzIL13 = np.meshgrid(x_grid, y_grid, IL13_z_grid)
 xxIL56, yyIL56, zzIL56 = np.meshgrid(x_grid, y_grid, IL56_z_grid)
 BL_pos_list = np.vstack([xxBL.ravel(), yyBL.ravel(), zzBL.ravel()]).T
 IL13_pos_list = np.vstack([xxIL13.ravel(), yyIL13.ravel(), zzIL13.ravel()]).T
-IL56_pos_list = np.vstack([xxIL56.ravel(), yyIL13.ravel(), zzIL56.ravel()]).T
+IL56_pos_list = np.vstack([xxIL56.ravel(), yyIL56.ravel(), zzIL56.ravel()]).T
 # Number of cells in each population
-global numPN_A = 640
-global numPN_C = 260
-global numBask = 100
-global numIL13_Pyr=230
-global numIL13_Bask=40
-global numIL56_Pyr=350
-global numIL56_Bask=60
-global numBL=numPN_A+numPN_C+numBask
-global numIL13=numIL13_Pyr+numIL13_Bask
+numPN_A = 640
+numPN_C = 260
+numBask = 100
+numIL13_Pyr=230
+numIL13_Bask=40
+numIL56_Pyr=350
+numIL56_Bask=60
+numBL=numPN_A+numPN_C+numBask
+numIL13=numIL13_Pyr+numIL13_Bask
 ########################Select 10% of IL56
 ##empty
 ########################Select 25% of BL
 templist=list(range(0, numPN_A+numPN_C-1))
-global 0_25_BL_P = random.sample(templist, round(0.25*(numPN_A+numPN_C)))
+list_0_25_BL_P = random.sample(templist, round(0.25*(numPN_A+numPN_C)))
 ########################Select 20% of IL5
 templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
-global 0_20_IL5_P = random.sample(templist, round(0.20*numIL56_Pyr))
+list_0_20_IL5_P = random.sample(templist, round(0.20*numIL56_Pyr))
 ########################Select20% of IL2
-templist=list(range(numBL, numBL+numIL13_-1))
-global 0_20_IL2_P = random.sample(templist, round(0.20*numIL13_Pyr))
+templist=list(range(numBL, numBL+numIL13_Pyr-1))
+list_0_20_IL2_P = random.sample(templist, round(0.20*numIL13_Pyr))
 ########################Select 4% of IL2
-templist=list(range(numBL, numBL+numIL13_-1))
-global 0_04_IL2_P = random.sample(templist, round(0.04*numIL13_Pyr))
+templist=list(range(numBL, numBL+numIL13_Pyr-1))
+list_0_04_IL2_P = random.sample(templist, round(0.04*numIL13_Pyr))
 ########################Select 5.5% of IL5
 templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
-global 0_055_IL5_P = random.sample(templist, round(0.055*numIL56_Pyr))
+list_0_055_IL5_P = random.sample(templist, round(0.055*numIL56_Pyr))
 ########################Select 10% of IL5
 templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
-global 0_10_IL5_P = random.sample(templist, round(0.1*numIL56_Pyr))
+list_0_10_IL5_P = random.sample(templist, round(0.1*numIL56_Pyr))
 ########################Select 8% of BL
 templist=list(range(0, numPN_A+numPN_C-1))
-global 0_08_BL_P = random.sample(templist, round(0.08*(numPN_A+numPN_C)))
+list_0_08_BL_P = random.sample(templist, round(0.08*(numPN_A+numPN_C)))
 ###################################################################################
 ####################################Pyr Type A#####################################
 
@@ -309,12 +309,12 @@ def IL2_p2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0,
     Pid=sid-numBL
     Iid=tid-numBL-numIL13_Pyr
 
-        src_pos = source['positions']
-        trg_pos = target['positions']
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6 <= Iid and Iid < Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -324,18 +324,18 @@ def IL2_p2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0,
     return tmp_nsyn
 
 def IL2_i2p_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0,
-                min_syns=1, max_syns=2,numBL=numBL, numIL13_Pyr=numIL13_Pyr)):
+                 min_syns=1, max_syns=2, umBL=numBL, numIL13_Pyr = numIL13_Pyr):
     sid = source.node_id
     tid = target.node_id
     Pid=sid-numBL
     Iid=tid-numBL-numIL13_Pyr
 
-        src_pos = source['positions']
-        trg_pos = target['positions']
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6<=Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -357,7 +357,7 @@ def IL2_i2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syn
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6<=Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -376,12 +376,12 @@ def IL2_p2i_conn(source, target, prob=0.1, min_dist=0.0,max_dist=300.0, min_syns
     Pid=sid-numBL-numIL13
     Iid=tid-numBL-numIL13-numIL56_Pyr
 
-        src_pos = source['positions']
-        trg_pos = target['positions']
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6<=Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -397,12 +397,12 @@ def IL2_i2p_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0, min_syn
     Pid=sid-numBL-numIL13
     Iid=tid-numBL-numIL13-numIL56_Pyr
 
-        src_pos = source['positions']
-        trg_pos = target['positions']
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6<=Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -424,7 +424,7 @@ def IL2_i2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syn
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
-    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+    if dist <= max_dist and (Pid-1)*6<=Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
         print("{}to{}done".format(sid,tid))
         #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
@@ -440,11 +440,11 @@ def cross_layer_conn_BL_IL2(source, target, prob=0.1, min_dist=0.0, max_dist=150
     tid = target.node_id
     #Pid=sid-numBL
     #Iid=tid-numBL-numIL13_Pyr
-        src_pos = source['positions']
-        trg_pos = target['positions']
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
-    if sid in 0_25_BL_P and tid in 0_20_IL2_P:
+    if sid in list_0_25_BL_P and tid in list_0_20_IL2_P:
         if dist <= max_dist: ## and np.random.uniform() < prob:
             tmp_nsyn = np.random.randint(min_syns, max_syns)
             print("{}to{}done".format(sid,tid))
@@ -460,13 +460,12 @@ def cross_layer_conn_BL_IL2(source, target, prob=0.1, min_dist=0.0, max_dist=150
 def cross_layer_conn_BL_IL5(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
     sid = source.node_id
     tid = target.node_id
-    #Pid=sid-numBL
-    #Iid=tid-numBL-numIL13_Pyr
-        src_pos = source['positions']
-        trg_pos = target['positions']
+
+    src_pos = source['positions']
+    trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
         #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
-    if sid in 0_25_BL_P and tid in 0_20_IL5_P:
+    if sid in list_0_25_BL_P and tid in list_0_20_IL5_P:
         if dist <= max_dist: ## and np.random.uniform() < prob:
             tmp_nsyn = np.random.randint(min_syns, max_syns)
             print("{}to{}done".format(sid,tid))
@@ -483,11 +482,11 @@ def cross_layer_conn_IL2_BL(source, target, prob=0.1, min_dist=0.0, max_dist=150
         tid = target.node_id
         #Pid=sid-numBL
         #Iid=tid-numBL-numIL13_Pyr
-            src_pos = source['positions']
-            trg_pos = target['positions']
+        src_pos = source['positions']
+        trg_pos = target['positions']
         dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
             #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
-        if sid in 0_04_IL2_P and tid in 0_08_BL_P:
+        if sid in list_0_04_IL2_P and tid in list_0_08_BL_P:
             if dist <= max_dist: ## and np.random.uniform() < prob:
                 tmp_nsyn = np.random.randint(min_syns, max_syns)
                 print("{}to{}done".format(sid,tid))
@@ -504,11 +503,11 @@ def cross_layer_conn_IL5_BL(source, target, prob=0.1, min_dist=0.0, max_dist=150
         tid = target.node_id
         #Pid=sid-numBL
         #Iid=tid-numBL-numIL13_Pyr
-            src_pos = source['positions']
-            trg_pos = target['positions']
+        src_pos = source['positions']
+        trg_pos = target['positions']
         dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
             #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
-        if sid in 0_055_IL5_P and tid in 0_08_BL_P:
+        if sid in list_0_055_IL5_P and tid in list_0_08_BL_P:
             if dist <= max_dist: ## and np.random.uniform() < prob:
                 tmp_nsyn = np.random.randint(min_syns, max_syns)
                 print("{}to{}done".format(sid,tid))
@@ -525,11 +524,11 @@ def cross_layer_conn_IL5_IL2(source, target, prob=0.1, min_dist=0.0, max_dist=15
         tid = target.node_id
         #Pid=sid-numBL
         #Iid=tid-numBL-numIL13_Pyr
-            src_pos = source['positions']
-            trg_pos = target['positions']
+        src_pos = source['positions']
+        trg_pos = target['positions']
         dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
             #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
-        if sid in 0_10_IL5_P:
+        if sid in list_0_10_IL5_P:
             if dist <= max_dist: ## and np.random.uniform() < prob:
                 tmp_nsyn = np.random.randint(min_syns, max_syns)
                 print("{}to{}done".format(sid,tid))
@@ -722,7 +721,7 @@ netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': 'I
 
 ##################################################
 ###########################From IL2 to BL
-netff.add_edges(source={'pop_name': IL13_Pyr}, target={'pop_name': ['Cell_A','Cell_C']},
+netff.add_edges(source={'pop_name': 'IL13_Pyr'}, target={'pop_name': ['Cell_A','Cell_C']},
                 connection_rule=cross_layer_conn_IL2_BL,
                 connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
@@ -733,7 +732,7 @@ netff.add_edges(source={'pop_name': IL13_Pyr}, target={'pop_name': ['Cell_A','Ce
                 delay=2.0)
 ##################################################
 ###########################From IL5 to BL
-netff.add_edges(source={'pop_name': IL56_Pyr}, target={'pop_name': ['Cell_A','Cell_C']},
+netff.add_edges(source={'pop_name': 'IL56_Pyr'}, target={'pop_name': ['Cell_A','Cell_C']},
                 connection_rule=cross_layer_conn_IL5_BL,
                 connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,

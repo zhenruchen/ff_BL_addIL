@@ -1,4 +1,8 @@
-node_type_id pop_name morphology model_type potental model_template
-100 Cell_A  biophysical exc hoc:Cell_A
-101 Cell_C  biophysical exc hoc:Cell_C
-102 Cell_Bask  biophysical exc hoc:Cell_PN
+node_type_id model_type potental morphology model_template pop_name
+100 biophysical exc  hoc:Cell_A Cell_A
+101 biophysical exc  hoc:Cell_C Cell_C
+102 biophysical inh  hoc:Cell_PN Cell_Bask
+103 biophysical exc  hoc:Cell_A IL13_Pyr
+104 biophysical inh  hoc:Cell_PN IL13_Bask
+105 biophysical exc  hoc:Cell_A IL56_Pyr
+106 biophysical inh  hoc:Cell_PN IL56_Bask
