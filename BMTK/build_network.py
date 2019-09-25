@@ -617,7 +617,7 @@ netff.add_edges(source={'pop_name': 'IL13_Bask'}, target={'pop_name': 'IL13_Pyr'
 # Create connections between Pyr --> Pyr cells
 netff.add_edges(source={'pop_name': 'IL13_Pyr'}, target={'pop_name': 'IL13_Pyr'},
                 connection_rule=dist_conn_perc1,
-                connection_params={'prob':0.01,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                connection_params={'prob':0.012*72,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
                 dynamics_params='AMPA_ExcToExc.json',
                 model_template='Exp2Syn',
@@ -666,7 +666,7 @@ netff.add_edges(source={'pop_name': 'IL13_Bask'}, target={'pop_name': 'IL13_Pyr'
 # Create connections between Pyr --> Pyr cells
 netff.add_edges(source={'pop_name': 'IL56_Pyr'}, target={'pop_name': 'IL56_Pyr'},
                 connection_rule=dist_conn_perc1,
-                connection_params={'prob':0.01,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                connection_params={'prob':0.027*72,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
                 syn_weight=5.0e-03,
                 dynamics_params='AMPA_ExcToExc.json',
                 model_template='Exp2Syn',
