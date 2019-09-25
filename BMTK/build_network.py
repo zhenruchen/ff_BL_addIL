@@ -37,6 +37,29 @@ global numIL56_Pyr=350
 global numIL56_Bask=60
 global numBL=numPN_A+numPN_C+numBask
 global numIL13=numIL13_Pyr+numIL13_Bask
+########################Select 10% of IL56
+##empty
+########################Select 25% of BL
+templist=list(range(0, numPN_A+numPN_C-1))
+global 0_25_BL_P = random.sample(templist, round(0.25*(numPN_A+numPN_C)))
+########################Select 20% of IL5
+templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
+global 0_20_IL5_P = random.sample(templist, round(0.20*numIL56_Pyr))
+########################Select20% of IL2
+templist=list(range(numBL, numBL+numIL13_-1))
+global 0_20_IL2_P = random.sample(templist, round(0.20*numIL13_Pyr))
+########################Select 4% of IL2
+templist=list(range(numBL, numBL+numIL13_-1))
+global 0_04_IL2_P = random.sample(templist, round(0.04*numIL13_Pyr))
+########################Select 5.5% of IL5
+templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
+global 0_055_IL5_P = random.sample(templist, round(0.055*numIL56_Pyr))
+########################Select 10% of IL5
+templist=list(range(numBL+numIL13, numBL+numIL13+numIL56_Pyr-1))
+global 0_10_IL5_P = random.sample(templist, round(0.1*numIL56_Pyr))
+########################Select 8% of BL
+templist=list(range(0, numPN_A+numPN_C-1))
+global 0_08_BL_P = random.sample(templist, round(0.08*(numPN_A+numPN_C)))
 ###################################################################################
 ####################################Pyr Type A#####################################
 
@@ -130,7 +153,7 @@ pos = IL13_pos_list[inds,:]
 #              model_processing='aibs_perisomatic',
 #              dynamics_params='472363762_fit.json',
 #              morphology='Scnn1a_473845048_m.swc')
-netff.add_nodes(N=numIL13_Pyr, pop_name='Cell_A',
+netff.add_nodes(N=numIL13_Pyr, pop_name='IL13_Pyr',
                 positions=positions_list(positions=pos),
                 potental='exc',
                 model_type='biophysical',
@@ -149,7 +172,7 @@ inds = np.random.choice(np.arange(0,np.size(IL13_pos_list,0)),numIL13_Bask,repla
 pos = IL13_pos_list[inds,:]
 
 # Add a population of numBask nodes
-#net.add_nodes(N=numIl13_Bask, pop_name='Bask',
+#net.add_nodes(N=numIL13_Bask, pop_name='Bask',
 #              positions=positions_list(positions=pos),
 #              mem_potential='e',
 #              model_type='biophysical',
@@ -157,7 +180,7 @@ pos = IL13_pos_list[inds,:]
 #              model_processing='aibs_perisomatic',
 #              dynamics_params='472363762_fit.json',
 #              morphology='Scnn1a_473845048_m.swc')
-netff.add_nodes(N=numIL13_Bask,pop_name='Cell_Bask',
+netff.add_nodes(N=numIL13_Bask,pop_name='IL13_Bask',
                 positions=positions_list(positions=pos),
                 potental='inh',
                 model_type='biophysical',
@@ -181,7 +204,7 @@ pos = IL56_pos_list[inds,:]
 #              model_processing='aibs_perisomatic',
 #              dynamics_params='472363762_fit.json',
 #              morphology='Scnn1a_473845048_m.swc')
-netff.add_nodes(N=numIL56_Pyr, pop_name='Cell_A',
+netff.add_nodes(N=numIL56_Pyr, pop_name='IL56_Pyr',
                 positions=positions_list(positions=pos),
                 potental='exc',
                 model_type='biophysical',
@@ -208,7 +231,7 @@ pos = IL56_pos_list[inds,:]
 #              model_processing='aibs_perisomatic',
 #              dynamics_params='472363762_fit.json',
 #              morphology='Scnn1a_473845048_m.swc')
-netff.add_nodes(N=numIL56_Bask,pop_name='Cell_Bask',
+netff.add_nodes(N=numIL56_Bask,pop_name='IL56_Bask',
                 positions=positions_list(positions=pos),
                 potental='inh',
                 model_type='biophysical',
@@ -230,7 +253,7 @@ def dist_conn_perc(source, target, prob=0.1, min_dist=0.0, max_dist=300.0, min_s
         src_pos = source['positions']
         trg_pos = target['positions']
     dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
-        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))        
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
 
     if dist <= max_dist and np.random.uniform() < prob:
         tmp_nsyn = np.random.randint(min_syns, max_syns)
@@ -242,7 +265,7 @@ def dist_conn_perc(source, target, prob=0.1, min_dist=0.0, max_dist=300.0, min_s
     return tmp_nsyn
 
 def dist_conn_perc1(source, target,prob=0 ,min_dist=0, max_dist=600, min_syns=1, max_syns=1):
-	
+
         x_ind,y_ind,z_ind = 0,1,2
         dx = target['positions'][x_ind] - source['positions'][x_ind]
         dy = target['positions'][y_ind] - source['positions'][y_ind]
@@ -254,7 +277,7 @@ def dist_conn_perc1(source, target,prob=0 ,min_dist=0, max_dist=600, min_syns=1,
 
         if distxyz <= 50:
             prob = 0.03
-            
+
         elif distxyz <= 100:
             prob = 0.02
         elif distxyz <= 200:
@@ -262,7 +285,7 @@ def dist_conn_perc1(source, target,prob=0 ,min_dist=0, max_dist=600, min_syns=1,
 
         else:
             prob = 0.005
-        
+
         if random.random() < prob:
             #Since there will be recurrect connections we need to keep track externally to BMTK
             #BMTK will call build_edges twice if we use net.edges() before net.build()
@@ -273,6 +296,247 @@ def dist_conn_perc1(source, target,prob=0 ,min_dist=0, max_dist=600, min_syns=1,
         else:
             tmp_nsyn=0
         #print('PyrA, PyrC connection=',tmp_nsyn)
+        return tmp_nsyn
+
+
+##############################################################################
+############################## IL2 connection rules #################################
+
+def IL2_p2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0,
+                min_syns=1, max_syns=2, numBL=numBL, numIL13_Pyr=numIL13_Pyr):
+    sid = source.node_id
+    tid = target.node_id
+    Pid=sid-numBL
+    Iid=tid-numBL-numIL13_Pyr
+
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+def IL2_i2p_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0,
+                min_syns=1, max_syns=2,numBL=numBL, numIL13_Pyr=numIL13_Pyr)):
+    sid = source.node_id
+    tid = target.node_id
+    Pid=sid-numBL
+    Iid=tid-numBL-numIL13_Pyr
+
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+def IL2_i2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+    sid = source.node_id
+    tid = target.node_id
+    #Pid=sid-numBL
+    #Iid=tid-numBL-numIL13_Pyr
+    if sid==tid:
+        return None
+    else:
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+##############################################################################
+############################## IL5 connection rules #################################
+
+def IL2_p2i_conn(source, target, prob=0.1, min_dist=0.0,max_dist=300.0, min_syns=1,
+		         max_syns=2, numBL=numBL, numIL13=numIL13, numIL56_Pyr=numIL56_Pyr):
+    sid = source.node_id
+    tid = target.node_id
+    Pid=sid-numBL-numIL13
+    Iid=tid-numBL-numIL13-numIL56_Pyr
+
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+def IL2_i2p_conn(source, target, prob=0.1, min_dist=0.0, max_dist=300.0, min_syns=1,
+                max_syns=2, numBL=numBL, numIL13=numIL13, numIL56_Pyr=numIL56_Pyr):
+    sid = source.node_id
+    tid = target.node_id
+    Pid=sid-numBL-numIL13
+    Iid=tid-numBL-numIL13-numIL56_Pyr
+
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+def IL2_i2i_conn(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+    sid = source.node_id
+    tid = target.node_id
+    #Pid=sid-numBL
+    #Iid=tid-numBL-numIL13_Pyr
+    if sid==tid:
+        return None
+    else:
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+
+    if dist <= max_dist and (Pid-1)*6=<Iid and Iid<Pid*6: ## and np.random.uniform() < prob:
+        tmp_nsyn = np.random.randint(min_syns, max_syns)
+        print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+    else:
+        tmp_nsyn = 0
+
+    return tmp_nsyn
+
+##############################################################################
+############################## Cross layer connection rules BL_IL2#################################
+def cross_layer_conn_BL_IL2(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+    sid = source.node_id
+    tid = target.node_id
+    #Pid=sid-numBL
+    #Iid=tid-numBL-numIL13_Pyr
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+    if sid in 0_25_BL_P and tid in 0_20_IL2_P:
+        if dist <= max_dist: ## and np.random.uniform() < prob:
+            tmp_nsyn = np.random.randint(min_syns, max_syns)
+            print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+        else:
+            tmp_nsyn = 0
+    else: return 0
+    return tmp_nsyn
+############################################
+
+##############################################################################
+############################## Cross layer connection rules BL_IL5#################################
+def cross_layer_conn_BL_IL5(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+    sid = source.node_id
+    tid = target.node_id
+    #Pid=sid-numBL
+    #Iid=tid-numBL-numIL13_Pyr
+        src_pos = source['positions']
+        trg_pos = target['positions']
+    dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+        #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+    if sid in 0_25_BL_P and tid in 0_20_IL5_P:
+        if dist <= max_dist: ## and np.random.uniform() < prob:
+            tmp_nsyn = np.random.randint(min_syns, max_syns)
+            print("{}to{}done".format(sid,tid))
+        #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+        else:
+            tmp_nsyn = 0
+    else: return 0
+    return tmp_nsyn
+
+##############################################################################
+############################## Cross layer connection rules IL2_BL################################
+def cross_layer_conn_IL2_BL(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+        sid = source.node_id
+        tid = target.node_id
+        #Pid=sid-numBL
+        #Iid=tid-numBL-numIL13_Pyr
+            src_pos = source['positions']
+            trg_pos = target['positions']
+        dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+            #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+        if sid in 0_04_IL2_P and tid in 0_08_BL_P:
+            if dist <= max_dist: ## and np.random.uniform() < prob:
+                tmp_nsyn = np.random.randint(min_syns, max_syns)
+                print("{}to{}done".format(sid,tid))
+            #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+            else:
+                tmp_nsyn = 0
+        else: return 0
+        return tmp_nsyn
+
+##############################################################################
+############################## Cross layer connection rules IL5_BL################################
+def cross_layer_conn_IL5_BL(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+        sid = source.node_id
+        tid = target.node_id
+        #Pid=sid-numBL
+        #Iid=tid-numBL-numIL13_Pyr
+            src_pos = source['positions']
+            trg_pos = target['positions']
+        dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+            #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+        if sid in 0_055_IL5_P and tid in 0_08_BL_P:
+            if dist <= max_dist: ## and np.random.uniform() < prob:
+                tmp_nsyn = np.random.randint(min_syns, max_syns)
+                print("{}to{}done".format(sid,tid))
+            #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+            else:
+                tmp_nsyn = 0
+        else: return 0
+        return tmp_nsyn
+
+##############################################################################
+############################## Cross layer connection rules IL5_IL2################################
+def cross_layer_conn_IL5_IL2(source, target, prob=0.1, min_dist=0.0, max_dist=150.0, min_syns=1, max_syns=2):
+        sid = source.node_id
+        tid = target.node_id
+        #Pid=sid-numBL
+        #Iid=tid-numBL-numIL13_Pyr
+            src_pos = source['positions']
+            trg_pos = target['positions']
+        dist =np.sqrt((src_pos[0]-trg_pos[0])**2+(src_pos[1]-trg_pos[1])**2+(src_pos[2]-trg_pos[2])**2)
+            #print("src_pos: {} trg_pos: {} dist: {}".format(src_pos,trg_pos,dist))
+        if sid in 0_10_IL5_P:
+            if dist <= max_dist: ## and np.random.uniform() < prob:
+                tmp_nsyn = np.random.randint(min_syns, max_syns)
+                print("{}to{}done".format(sid,tid))
+            #print("creating {} synapse(s) between cell {} and {}".format(tmp_nsyn,sid,tid))
+            else:
+                tmp_nsyn = 0
+        else: return 0
         return tmp_nsyn
 
 # Create connections between Pyr --> Bask cells
@@ -297,7 +561,7 @@ netff.add_edges(source={'pop_name': 'Cell_Bask'}, target={'pop_name': ['Cell_A',
                 distance_range=[0.0, 300.0],
                 target_sections=['somatic'],
                 delay=2.0)
- 
+
 # Create connections between Pyr --> Pyr cells
 netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': ['Cell_A','Cell_C']},
                 connection_rule=dist_conn_perc1,
@@ -323,6 +587,165 @@ netff.build()
 netff.save_nodes(output_dir='network')
 netff.save_edges(output_dir='network')
 
+
+#########################################################
+#######################inside IL2
+
+# Create connections between Pyr --> Bask cells
+netff.add_edges(source={'pop_name': 'IL13_Pyr'}, target={'pop_name': 'IL13_Bask'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.12,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToInh.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+# Create connections between Bask --> Pyr cells
+print("?????")
+netff.add_edges(source={'pop_name': 'IL13_Bask'}, target={'pop_name': 'IL13_Pyr'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.34,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='GABA_InhToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+# Create connections between Pyr --> Pyr cells
+netff.add_edges(source={'pop_name': 'IL13_Pyr'}, target={'pop_name': 'IL13_Pyr'},
+                connection_rule=dist_conn_perc1,
+                connection_params={'prob':0.01,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0
+                )
+# Create connections between Bask --> Bask cells
+netff.add_edges(source={'pop_name': 'IL13_Bask'}, target={'pop_name': 'IL13_Bask'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='GABA_InhToInh.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 600.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+
+#########################################################
+#######################inside IL56
+
+# Create connections between Pyr --> Bask cells
+netff.add_edges(source={'pop_name': 'IL56_Pyr'}, target={'pop_name': 'IL56_Bask'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.12,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToInh.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+# Create connections between Bask --> Pyr cells
+print("?????")
+netff.add_edges(source={'pop_name': 'IL13_Bask'}, target={'pop_name': 'IL13_Pyr'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.34,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='GABA_InhToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+# Create connections between Pyr --> Pyr cells
+netff.add_edges(source={'pop_name': 'IL56_Pyr'}, target={'pop_name': 'IL56_Pyr'},
+                connection_rule=dist_conn_perc1,
+                connection_params={'prob':0.01,'min_dist':0.0,'max_dist':300.0,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 300.0],
+                target_sections=['somatic'],
+                delay=2.0
+                )
+# Create connections between Bask --> Bask cells
+netff.add_edges(source={'pop_name': 'IL56_Bask'}, target={'pop_name': 'IL56_Bask'},
+                connection_rule=dist_conn_perc,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='GABA_InhToInh.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 150.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+###############################################
+##############################From IL2 to IL5 and IL5 to IL2
+####No IL2 to IL5
+#add IL5 to IL 2, 10% of IL5_Pyr CELLS
+netff.add_edges(source={'pop_name': 'IL56_Pyr'}, target={'pop_name': 'IL13_Pyr'},
+                connection_rule=cross_layer_conn_IL5_IL2,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 800.0],
+                target_sections=['somatic'],
+                delay=2.0)
+###############################################
+########################From BL to IL2 and BL to IL5
+netff.add_edges(source={'pop_name':['Cell_A','Cell_C']}, target={'pop_name': 'IL13_Pyr'},
+                connection_rule=cross_layer_conn_BL_IL2,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 800.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+netff.add_edges(source={'pop_name': ['Cell_A','Cell_C']}, target={'pop_name': 'IL56_Pyr'},
+                connection_rule=cross_layer_conn_BL_IL5,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 800.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+##################################################
+###########################From IL2 to BL
+netff.add_edges(source={'pop_name': IL13_Pyr}, target={'pop_name': ['Cell_A','Cell_C']},
+                connection_rule=cross_layer_conn_IL2_BL,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 800.0],
+                target_sections=['somatic'],
+                delay=2.0)
+##################################################
+###########################From IL5 to BL
+netff.add_edges(source={'pop_name': IL56_Pyr}, target={'pop_name': ['Cell_A','Cell_C']},
+                connection_rule=cross_layer_conn_IL5_BL,
+                connection_params={'prob':0.26,'min_dist':0.0,'max_dist':600,'min_syns':1,'max_syns':2},
+                syn_weight=5.0e-03,
+                dynamics_params='AMPA_ExcToExc.json',
+                model_template='Exp2Syn',
+                distance_range=[0.0, 800.0],
+                target_sections=['somatic'],
+                delay=2.0)
+
+
+
+
 print("Internal nodes and edges built")
 
 # Create connections between "thalamus" and Pyramidals
@@ -331,9 +754,7 @@ def one_to_one(source, target):
     #print("one to one")
     sid = source.node_id
     tid = target.node_id
-    
-    if tid > 89 :
-        print("working on Bask")
+
     if sid == tid:
         print("connecting cell {} to {}".format(sid,tid))
         tmp_nsyn = 1
