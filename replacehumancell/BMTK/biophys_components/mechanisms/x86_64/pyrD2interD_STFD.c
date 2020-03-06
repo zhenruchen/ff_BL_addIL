@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* NOT VECTORIZED */
 #define NRN_VECTORIZED 0
 #include <stdio.h>
@@ -148,6 +148,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern Prop* nrn_point_prop_;
  static int _pointtype;
  static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
@@ -267,7 +276,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "pyrD2interD_STFD",
  "srcid",
  "destid",
@@ -427,6 +436,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
      _nrn_thread_reg(_mechtype, 2, _update_ion_pointer);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 75, 5);
   hoc_register_dparam_semantics(_mechtype, 0, "area");
   hoc_register_dparam_semantics(_mechtype, 1, "pntproc");
@@ -438,7 +451,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  pnt_receive[_mechtype] = _net_receive;
  pnt_receive_size[_mechtype] = 1;
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 pyrD2interD_STFD /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/pyrD2interD_STFD.mod\n");
+ 	ivoc_help("help ?1 pyrD2interD_STFD /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/pyrD2interD_STFD.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -472,7 +485,7 @@ static int _ode_spec1(_threadargsproto_);
  Dr_nmda = Dr_nmda  / (1. - dt*( ( AlphaTmax_nmda * on_nmda )*( ( ( - 1.0 ) ) ) - ( Beta_nmda )*( 1.0 ) )) ;
  Dr_ampa = Dr_ampa  / (1. - dt*( ( AlphaTmax_ampa * on_ampa )*( ( ( - 1.0 ) ) ) - ( Beta_ampa )*( 1.0 ) )) ;
  Dcapoolcon = Dcapoolcon  / (1. - dt*( ( ( ( - 1.0 ) ) ) / tauCa )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int release () {_reset=0;
@@ -836,3 +849,293 @@ static void _initlists() {
  _slist1[3] = &(capoolcon) - _p;  _dlist1[3] = &(Dcapoolcon) - _p;
 _first = 0;
 }
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/pyrD2interD_STFD.mod";
+static const char* nmodl_file_text = 
+  ":Pyramidal Cells to Interneuron Cells AMPA+NMDA with local Ca2+ pool\n"
+  "\n"
+  "NEURON {\n"
+  "	POINT_PROCESS pyrD2interD_STFD\n"
+  "	USEION ca READ eca	\n"
+  "	NONSPECIFIC_CURRENT inmda, iampa\n"
+  "	RANGE initW\n"
+  "	RANGE Cdur_nmda, AlphaTmax_nmda, Beta_nmda, Erev_nmda, gbar_nmda, W_nmda, on_nmda, g_nmda\n"
+  "	RANGE Cdur_ampa, AlphaTmax_ampa, Beta_ampa, Erev_ampa, gbar_ampa, W, on_ampa, g_ampa\n"
+  "	RANGE eca, ICan, P0n, fCan, tauCa, Icatotal\n"
+  "	RANGE ICaa, P0a, fCaa\n"
+  "	RANGE Cainf, pooldiam, z\n"
+  "	RANGE lambda1, lambda2, threshold1, threshold2\n"
+  "	RANGE fmax, fmin, Wmax, Wmin, maxChange, normW, scaleW, srcid, destid,limitW\n"
+  "	RANGE pregid,postgid, thr_rp\n"
+  "	RANGE F, f, tauF, D1, d1, tauD1, D2, d2, tauD2\n"
+  "	RANGE facfactor\n"
+  "	RANGE neuroM,type\n"
+  "}\n"
+  "\n"
+  "UNITS {\n"
+  "	(mV) = (millivolt)\n"
+  "        (nA) = (nanoamp)\n"
+  "	(uS) = (microsiemens)\n"
+  "	FARADAY = 96485 (coul)\n"
+  "	pi = 3.141592 (1)\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "\n"
+  "	srcid = -1 (1)\n"
+  "	destid = -1 (1)\n"
+  "	type = -1\n"
+  "	\n"
+  "	Cdur_nmda = 16.7650 (ms)\n"
+  "	AlphaTmax_nmda = .2659 (/ms)\n"
+  "	Beta_nmda = 0.008 (/ms)\n"
+  "	Erev_nmda = 0 (mV)\n"
+  "	gbar_nmda = .5e-3 (uS)\n"
+  "\n"
+  "	Cdur_ampa = 0.713 (ms)\n"
+  "	AlphaTmax_ampa = 10.1571 (/ms)\n"
+  "	Beta_ampa = 0.4167 (/ms)\n"
+  "	Erev_ampa = 0 (mV)\n"
+  "	gbar_ampa = 1e-3 (uS)\n"
+  "\n"
+  "	eca = 120\n"
+  "\n"
+  "	Cainf = 50e-6 (mM)\n"
+  "	pooldiam =  1.8172 (micrometer)\n"
+  "	z = 2\n"
+  "	neuroM = 0\n"
+  "\n"
+  "	tauCa = 50 (ms)\n"
+  "	P0n = .015\n"
+  "	fCan = .024\n"
+  "	\n"
+  "	P0a = .001\n"
+  "	fCaa = .024\n"
+  "	\n"
+  "	lambda1 = 8 : 3 : 10 :6 : 4 :2\n"
+  "	lambda2 = .01\n"
+  "	threshold1 = 0.35 : 0.4 :  0.45 :0.5 (uM)\n"
+  "	threshold2 = 0.4 : 0.45 :  0.5 :0.6 (uM)\n"
+  "\n"
+  "	:AMPA Weight\n"
+  "	initW = 1.5 : 1.5 : 2 : 0.1:3 : 2 :3\n"
+  "	fmax = 4 : 8 : 5: 4 :3\n"
+  "	fmin = .8	\n"
+  "\n"
+  "	thr_rp = 1 : .7\n"
+  "	\n"
+  "	facfactor = 1\n"
+  "	: the (1) is needed for the range limits to be effective\n"
+  "        f = 1 (1) < 0, 1e9 >    : facilitation  : 1.3 (1) < 0, 1e9 >    : facilitation\n"
+  "        tauF = 45 (ms) < 1e-9, 1e9 >\n"
+  "        d1 = 0.95 (1) < 0, 1 >: 0.95 (1) < 0, 1 >     : fast depression\n"
+  "        tauD1 = 40 (ms) < 1e-9, 1e9 >\n"
+  "        d2 = 0.9 (1) < 0, 1 > : 0.9 (1) < 0, 1 >     : slow depression\n"
+  "        tauD2 = 70 (ms) < 1e-9, 1e9 >		\n"
+  "	\n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "	v (mV)\n"
+  "\n"
+  "	inmda (nA)\n"
+  "	g_nmda (uS)\n"
+  "	on_nmda\n"
+  "	W_nmda\n"
+  "\n"
+  "	iampa (nA)\n"
+  "	g_ampa (uS)\n"
+  "	on_ampa\n"
+  "	: W\n"
+  "	limitW\n"
+  "\n"
+  "	t0 (ms)\n"
+  "\n"
+  "	ICan (nA)\n"
+  "	ICaa (nA)\n"
+  "	Afactor	(mM/ms/nA)\n"
+  "	Icatotal (nA)\n"
+  "\n"
+  "	dW_ampa\n"
+  "	Wmax\n"
+  "	Wmin\n"
+  "	maxChange\n"
+  "	normW\n"
+  "	scaleW\n"
+  "	\n"
+  "	pregid\n"
+  "	postgid\n"
+  "	\n"
+  "	rp\n"
+  "	tsyn\n"
+  "	\n"
+  "	fa\n"
+  "	F\n"
+  "	D1\n"
+  "	D2		\n"
+  "}\n"
+  "\n"
+  "STATE { r_nmda r_ampa capoolcon W}\n"
+  "\n"
+  "INITIAL {\n"
+  "	on_nmda = 0\n"
+  "	r_nmda = 0\n"
+  "	W_nmda = initW\n"
+  "\n"
+  "	on_ampa = 0\n"
+  "	r_ampa = 0\n"
+  "	W = initW\n"
+  "	limitW = 1\n"
+  "\n"
+  "	t0 = -1\n"
+  "\n"
+  "	Wmax = fmax*initW\n"
+  "	Wmin = fmin*initW\n"
+  "	maxChange = (Wmax-Wmin)/10\n"
+  "	dW_ampa = 0\n"
+  "\n"
+  "	capoolcon = Cainf\n"
+  "	Afactor	= 1/(z*FARADAY*4/3*pi*(pooldiam/2)^3)*(1e6)\n"
+  "	\n"
+  "	fa =0\n"
+  "	F = 1\n"
+  "	D1 = 1\n"
+  "	D2 = 1		\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  " if ((eta(capoolcon)*(lambda1*omega(capoolcon, threshold1, threshold2)-lambda2*W))>0&&W>=Wmax) {\n"
+  "        limitW=1e-12\n"
+  "	} else if ((eta(capoolcon)*(lambda1*omega(capoolcon, threshold1, threshold2)-lambda2*W))<0&&W<=Wmin) {\n"
+  "        limitW=1e-12\n"
+  "	} else {\n"
+  "	limitW=1 }\n"
+  "	\n"
+  "	SOLVE release METHOD cnexp\n"
+  "	if (t0>0) {\n"
+  "		if (rp < thr_rp) {\n"
+  "			if (t-t0 < Cdur_ampa) {\n"
+  "				on_ampa = 1\n"
+  "			} else {\n"
+  "				on_ampa = 0\n"
+  "			}\n"
+  "		} else {\n"
+  "			on_ampa = 0\n"
+  "		}\n"
+  "	}\n"
+  "     : if (W >= Wmax || W <= Wmin ) {     : for limiting the weight\n"
+  "	 : limitW=1e-12\n"
+  "	 : } else {\n"
+  "	  : limitW=1\n"
+  "	 : }\n"
+  "	: if (W > Wmax) { \n"
+  "	:	W = Wmax\n"
+  "	: } else if (W < Wmin) {\n"
+  " 		: W = Wmin\n"
+  "	: }\n"
+  "	\n"
+  "	 if (neuroM==0) {\n"
+  "	g_nmda = gbar_nmda*r_nmda*facfactor\n"
+  "	} else {\n"
+  "	g_nmda = gbar_nmda*r_nmda*facfactor\n"
+  "	}\n"
+  "	inmda = W_nmda*g_nmda*(v - Erev_nmda)*sfunc(v)\n"
+  "\n"
+  "	g_ampa = gbar_ampa*r_ampa*facfactor\n"
+  "	iampa = W*g_ampa*(v - Erev_ampa)\n"
+  "\n"
+  "	ICan = P0n*g_nmda*(v - eca)*sfunc(v)\n"
+  "	ICaa = P0a*W*g_ampa*(v-eca)/initW	\n"
+  "	Icatotal = ICan + ICaa\n"
+  "}\n"
+  "\n"
+  "DERIVATIVE release {\n"
+  "    : W' = eta(capoolcon)*(lambda1*omega(capoolcon, threshold1, threshold2)-lambda2*W)	  : Long-term plasticity was implemented. (Shouval et al. 2002a, 2002b)\n"
+  "   \n"
+  "	    W' = 1e-12*limitW*eta(capoolcon)*(lambda1*omega(capoolcon, threshold1, threshold2)-lambda2*W)	  : Long-term plasticity was implemented. (Shouval et al. 2002a, 2002b)\n"
+  "\n"
+  "	r_nmda' = AlphaTmax_nmda*on_nmda*(1-r_nmda)-Beta_nmda*r_nmda\n"
+  "	r_ampa' = AlphaTmax_ampa*on_ampa*(1-r_ampa)-Beta_ampa*r_ampa\n"
+  "  \n"
+  "	capoolcon'= -fCan*Afactor*Icatotal + (Cainf-capoolcon)/tauCa\n"
+  "}\n"
+  "\n"
+  "NET_RECEIVE(dummy_weight) {\n"
+  "\n"
+  " if (flag==0) {           :a spike arrived, start onset state if not already on\n"
+  "         if ((!on_nmda)){       :this synpase joins the set of synapses in onset state\n"
+  "           t0=t\n"
+  "	      on_nmda=1		\n"
+  "	      net_send(Cdur_nmda,1)  \n"
+  "         } else if (on_nmda==1) {             :already in onset state, so move offset time\n"
+  "          net_move(t+Cdur_nmda)\n"
+  "		  t0=t\n"
+  "	      }\n"
+  "         }		  \n"
+  "	if (flag == 1) { : turn off transmitter, i.e. this synapse enters the offset state	\n"
+  "	on_nmda=0\n"
+  "    }\n"
+  "	\n"
+  "	if (flag == 0) {  : Short term plasticity was implemented(Varela et. al 1997):\n"
+  "	\n"
+  "	rp = unirand()	\n"
+  "	\n"
+  "	:F  = 1 + (F-1)* exp(-(t - tsyn)/tauF)\n"
+  "	D1 = 1 - (1-D1)*exp(-(t - tsyn)/tauD1)\n"
+  "	D2 = 1 - (1-D2)*exp(-(t - tsyn)/tauD2)\n"
+  " :printf(\"%g\\t%g\\t%g\\t%g\\t%g\\t%g\\n\", t, t-tsyn, F, D1, D2, facfactor)\n"
+  "	::printf(\"%g\\t%g\\t%g\\t%g\\n\", F, D1, D2, facfactor)\n"
+  "	tsyn = t\n"
+  "	\n"
+  "	facfactor = F * D1 * D2\n"
+  "\n"
+  "	F = F * f\n"
+  "	\n"
+  "	if (F > 2) { \n"
+  "	F=2\n"
+  "	}\n"
+  "	if (facfactor < 0.7) { \n"
+  "	facfactor=0.7\n"
+  "	}\n"
+  "	if (F < 0.8) { \n"
+  "	F=0.8\n"
+  "	}	\n"
+  "	D1 = D1 * d1\n"
+  "	D2 = D2 * d2\n"
+  ":printf(\"\\t%g\\t%g\\t%g\\n\", F, D1, D2)\n"
+  "}\n"
+  "}\n"
+  "\n"
+  ":::::::::::: FUNCTIONs and PROCEDUREs ::::::::::::\n"
+  "\n"
+  "FUNCTION sfunc (v (mV)) {\n"
+  "	UNITSOFF\n"
+  "	sfunc = 1/(1+0.33*exp(-0.06*v))\n"
+  "	UNITSON\n"
+  "}\n"
+  "\n"
+  "FUNCTION eta(Cani (mM)) {\n"
+  "	LOCAL taulearn, P1, P2, P4, Cacon\n"
+  "	P1 = 0.1\n"
+  "	P2 = P1*1e-4\n"
+  "	P4 = 1\n"
+  "	Cacon = Cani*1e3\n"
+  "	taulearn = P1/(P2+Cacon*Cacon*Cacon)+P4\n"
+  "	eta = 1/taulearn*0.001\n"
+  "}\n"
+  "\n"
+  "FUNCTION omega(Cani (mM), threshold1 (uM), threshold2 (uM)) {\n"
+  "	LOCAL r, mid, Cacon\n"
+  "	Cacon = Cani*1e3\n"
+  "	r = (threshold2-threshold1)/2\n"
+  "	mid = (threshold1+threshold2)/2\n"
+  "	if (Cacon <= threshold1) { omega = 0}\n"
+  "	else if (Cacon >= threshold2) {	omega = 1/(1+50*exp(-50*(Cacon-threshold2)))}\n"
+  "	else {omega = -sqrt(r*r-(Cacon-mid)*(Cacon-mid))}\n"
+  "}\n"
+  "FUNCTION unirand() {    : uniform random numbers between 0 and 1\n"
+  "        unirand = scop_random()\n"
+  "}\n"
+  ;
+#endif

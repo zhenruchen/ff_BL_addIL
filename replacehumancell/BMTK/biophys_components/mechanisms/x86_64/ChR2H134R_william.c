@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* VECTORIZED */
 #define NRN_VECTORIZED 1
 #include <stdio.h>
@@ -108,6 +108,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern Prop* nrn_point_prop_;
  static int _pointtype;
  static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
@@ -239,7 +248,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "ChR2_william",
  "Irradiance",
  "gmax",
@@ -329,6 +338,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
 	 _hoc_create_pnt, _hoc_destroy_pnt, _member_func);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 35, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "area");
   hoc_register_dparam_semantics(_mechtype, 1, "pntproc");
@@ -339,7 +352,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  pnt_receive[_mechtype] = _net_receive;
  pnt_receive_size[_mechtype] = 1;
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 ChR2_william /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/ChR2H134R_william.mod\n");
+ 	ivoc_help("help ?1 ChR2_william /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/ChR2H134R_william.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -373,7 +386,7 @@ static int _ode_spec1(_threadargsproto_);
  DO2 = DO2  / (1. - dt*( ( - ( Gd2 + e21 ) )*( 1.0 ) + ( epsilon2 * F * p )*( ( ( - 1.0 ) ) ) )) ;
  DC1 = DC1  / (1. - dt*( ( - epsilon1 * F * p )*( 1.0 ) + ( Gr )*( ( ( - 1.0 ) ) ) )) ;
  Dp = Dp  / (1. - dt*( ( ( ( - 1.0 ) ) ) / tauChR2 )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
@@ -636,4 +649,247 @@ _first = 0;
 
 #if defined(__cplusplus)
 } /* extern "C" */
+#endif
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/ChR2H134R_william.mod";
+static const char* nmodl_file_text = 
+  "COMMENT\n"
+  "-----------------------------------------------------------------------------\n"
+  "ChR2H134R.mod\n"
+  "\n"
+  "Model of Channelrhodopsin-2 (mutant H134R)\n"
+  "==========================================\n"
+  "\n"
+  "from: \n"
+  "Williams JC, Xu J, Lu Z, Klimas A, Chen X, et al. (2013) Computational Optogenetics: Empirically-Derived Voltage- and Light-Sensitive Channelrhodopsin- 2 Model. \n"
+  "PLoS Comput Biol 9(9): e1003220. doi:10.1371/journal.pcbi.1003220\n"
+  "\n"
+  "Original (MATLAB) code by: John C. Williams\n"
+  "\n"
+  "Implemented by: Michele Giugliano, SISSA Trieste, 8/8/2018, mgiugliano@gmail.com\n"
+  "\n"
+  "This mechanism includes the voltage, light, and temperature dependences of CHR2-H134R. \n"
+  "Set the desired temperature by the hoc assignment statement ==> e.g. celsius = 37\n"
+  "-----------------------------------------------------------------------------\n"
+  "ENDCOMMENT\n"
+  "\n"
+  "TITLE Channelrhodopsin-2 (mutant H134R) current density \n"
+  "\n"
+  "\n"
+  "UNITS {\n"
+  ": Convenient aliases for the units...\n"
+  "	(mS) = (millisiemens)\n"
+  "	(mV) = (millivolt)\n"
+  "	(mA) = (milliamp)\n"
+  "}\n"
+  "\n"
+  "\n"
+  "NEURON {\n"
+  ": Public interface of the present mechanism...\n"
+  "	POINT_PROCESS ChR2_william\n"
+  "	NONSPECIFIC_CURRENT i\n"
+  "\n"
+  "	RANGE i, gmax, Irradiance\n"
+  "    RANGE light_intensity, light_delay, pulse_width,Dt_on, Dt_off, nPulses,Dt_delay\n"
+  "    RANGE Gd1,Gd2,tauChR2,Gr\n"
+  "    RANGE A, B, C, gamma\n"
+  "\n"
+  "    :GLOBAL A, B, C, gamma\n"
+  "	GLOBAL wavelength, hc, wloss, sigma_retinal\n"
+  "	GLOBAL Q10_Gd1, Q10_Gd2, Q10_Gr, Q10_e12dark, Q10_e21dark, Q10_epsilon1, Q10_epsilon2\n"
+  "}\n"
+  "\n"
+  "\n"
+  "\n"
+  "PARAMETER {\n"
+  ": Below are constants, variables that are not changed within\n"
+  ": this mechanism, and other variables changed by the user through the hoc code...\n"
+  "	Irradiance      = 0.\n"
+  "	:gmax  			= 0.4  		(mS/cm2)	  : maximal conductance\n"
+  "    gmax  			= 0.4  		(uS)	  : maximal conductance\n"
+  "	EChR2 			= 0.     	(mV)          : reversal potential\n"
+  "\n"
+  "	:light_delay     = 100.		(ms)		  : initial delay, before switching on the light pulse\n"
+  "	Dt_delay     = 100.		(ms)		  : initial delay, before switching on the light pulse\n"
+  "    pulse_width     = 100.		(ms)		  : width of the light pulse\n"
+  "	light_intensity = 5.					  : mW/mm^2, intensity of the light pulse\n"
+  "    \n"
+  "    Dt_on     = 100   (ms)    <0, 1e9>        : duration of ON phase  <-Dt_delay->|<-Dt_on->|<-Dt_off->\n"
+  "    Dt_off    = 50    (ms)    <0, 1e9>        : duration of OFF phase ________|       |________\n"
+  "    nPulses = 1     (1)     <0, 1e3>        : num pulses to deliver         <-- one pulse -->\n"
+  "\n"
+  "\n"
+  "    gamma           = 0.1					  : ratio of conductances in states O2/O1, unit-less\n"
+  "	A 				= 10.6408   (mV)          : Be careful with implementing eqs. 1 and 12!\n"
+  "	B 				= -14.6408  (mV)		  :\n"
+  "	C 				= -42.7671  (mV)          :\n"
+  "\n"
+  "	wavelength 		= 470		    		  : wavelength of max absorption for retinal, nm\n"
+  "	hc       		= 1.986446E-25  		  : Planck's constant * speed of light, kg m^3/s^2\n"
+  "	wloss    		= 1.3      : scaling factor for losses of photons due to scattering or absorption\n"
+  "	sigma_retinal 	= 12.E-20       		  : retinal cross-sectional area, m^2\n"
+  "\n"
+  "	tauChR2  		= 1.3		(ms)          : time constant for ChR2 activation\n"
+  "\n"
+  "	temp 			= 22	  (degC)		  : original temperature\n"
+  "	Q10_Gd1      	= 1.97					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_Gd2      	= 1.77					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_Gr       	= 2.56					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_e12dark  	= 1.1					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_e21dark  	= 1.95					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_epsilon1 	= 1.46					  : Q10 value for the temperature sensitivity\n"
+  "	Q10_epsilon2 	= 2.77					  : Q10 value for the temperature sensitivity\n"
+  "    \n"
+  "    Gd1 = 0.117  (1./ms)   :fixed by Feng\n"
+  "    Gd2 = 0.05   (1./ms)  :fixed by Feng\n"
+  "    Gr = 1.9E-04 (1./ms)    :fixed by Feng \n"
+  "    \n"
+  "\n"
+  "}\n"
+  "\n"
+  "\n"
+  "ASSIGNED {\n"
+  ": variables calculated by the present mechanism or by NEURON\n"
+  "	v      		(mV)			: Membrane potential\n"
+  "	celsius		(degC)          : Temperature\n"
+  "\n"
+  "	:i    		(mA/cm2)		: Membrane current\n"
+  "     i    		(nA)\n"
+  "	:Gd1    		(1./ms)			: rate constant for O1->C1 transition\n"
+  "	:Gd2    		(1./ms)			: rate constant for O2->C2 transition\n"
+  "	:Gr     		(1./ms)			: rate constant for C2->C1 transition\n"
+  "	e12    		(1./ms)			: rate constant for O1->O2 transition\n"
+  "	e21    		(1./ms)			: rate constant for O2->O1 transition\n"
+  "\n"
+  "	epsilon1 					: quantum efficiency for photon absorption from C1\n"
+  "	epsilon2 					: quantum efficiency for photon absorption from C2\n"
+  "	F   		(1./ms)			: photon flux: number of photons per molecule per second\n"
+  "	S0							: time- & irradiance-dep. activation func. (post-isomerization)\n"
+  "    tally\n"
+  "}\n"
+  "\n"
+  "\n"
+  "STATE {\n"
+  ": Let's declare the state variables\n"
+  ": Note: in any kinetic scheme with N state, you have N-1 *independent* state variables and\n"
+  ": this is the reason why C2 is not defined below, but rather expressed as (1 - O1 - O2 - C1). \n"
+  ":\n"
+  ": O1, O2, C1 and C2 are the fractions of channels in open and closed states, while p is\n"
+  ": an additional state variable, capturing the kinetics of ChR2 activation \n"
+  "\n"
+  "	O1 O2 C1 p\n"
+  "}\n"
+  "\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "	SOLVE states METHOD cnexp\n"
+  "\n"
+  "	:Irradiance = 0.               : typically with values in the range 0 - 10 mW/mm^2\n"
+  "\n"
+  "    : The control of the Irradiance waveform within Neuron is very rudimentary and\n"
+  "    : it is made explicit below. In other words, the time course of Irradiance is \n"
+  "    : upfront defined - in this example - as a single-pulse photoactivation protocol.\n"
+  "    : Modify it to fit your needs!\n"
+  "\n"
+  "    :if (t < light_delay)                      { Irradiance = 0. }\n"
+  "    :else if (t < (light_delay + pulse_width)) { Irradiance = light_intensity }\n"
+  "    :else if (t > (light_delay + pulse_width)) { Irradiance = 0. }\n"
+  "\n"
+  "	i =  (gmax * (A + B * exp(v /C))/v * (O1 + gamma * O2) * (v - EChR2))\n"
+  "\n"
+  "	: note: the above expression includes the voltage-dep. rectification of ChR2\n"
+  "}\n"
+  "\n"
+  "\n"
+  "INITIAL {\n"
+  ": Let's set the state variables to their initial values... \n"
+  "	rates(v)\n"
+  "	C1 = 1.\n"
+  "	O1 = 0.\n"
+  "	O2 = 0.\n"
+  "	p  = 0.\n"
+  "    \n"
+  "    tally   = nPulses : Set the tally to the number of pulses required \n"
+  "    if (tally > 0) {\n"
+  "        net_send(Dt_delay, 1)\n"
+  "        tally = tally - 1\n"
+  "    }\n"
+  "    \n"
+  "}\n"
+  "\n"
+  "\n"
+  "DERIVATIVE states {\n"
+  ": The state variables are computed here...\n"
+  "    rates(v)\n"
+  "    : Note: these are the full equations:\n"
+  "	:O1' = -(Gd1+e12)           * O1 + e21 * O2 + epsilon1*F*p * C1\n"
+  "	:O2' = -(Gd2+e21)           * O2 + e12 * O1 + epsilon2*F*p * C2\n"
+  "	:C1' = -epsilon1*F*p        * C1 + Gd1 * O1 + Gr  * C2   \n"
+  "	:C2' = -(epsilon2*F*p + Gr) * C2 + Gd2 * O2\n"
+  "	:p'  =  (S0 - p) / tauChR2 \n"
+  "\n"
+  "	: However, only 3 of them are independent. Let's then define C2 as (1. - C1 - O1 - O2)\n"
+  "	O1' = -(Gd1+e12)           * O1 + e21 * O2 + epsilon1*F*p * C1\n"
+  "	O2' = -(Gd2+e21)           * O2 + e12 * O1 + epsilon2*F*p * (1. - C1 - O1 - O2)\n"
+  "	C1' = -epsilon1*F*p        * C1 + Gd1 * O1 + Gr  * (1. - C1 - O1 - O2)  \n"
+  "\n"
+  "	p'  =  (S0 - p) / tauChR2\n"
+  "}\n"
+  "\n"
+  "\n"
+  "UNITSOFF\n"
+  "PROCEDURE rates(v (mV)) {\n"
+  "    LOCAL e12dark, e21dark, logphi0, Ephoton, flux\n"
+  "\n"
+  "	: Values at 22 degrees celsius...\n"
+  "	e12dark  = 0.011                                 : ms^-1\n"
+  "	e21dark  = 0.008                                 : ms^-1\n"
+  "	epsilon1 = 0.8535\n"
+  "	epsilon2 = 0.14\n"
+  "	:Gd1 = 0.075 + 0.043 * tanh( -(v+20.) / 20.)    	 : dark-adapted deactivation rate, ms^-1\n"
+  "	:Gd2 = 0.05                                  	 : ms^-1\n"
+  "	:Gr  = 0.0000434587 * exp(-0.0211539274 * v)    	 : recovery rate ms^-1\n"
+  "    \n"
+  "\n"
+  "	: These values are adjusted to the temperature specified by the user...\n"
+  "	:e12dark  = e12dark  * Q10_e12dark^((celsius-temp)/10.)    : scale with temp, using Q10\n"
+  "	:e21dark  = e21dark  * Q10_e21dark^((celsius-temp)/10.)    : scale with temp, using Q10\n"
+  "	:epsilon1 = epsilon1 * Q10_epsilon1^((celsius-temp)/10.)   : scale with temp, using Q10\n"
+  "	:epsilon2 = epsilon2 * Q10_epsilon2^((celsius-temp)/10.)   : scale with temp, using Q10\n"
+  "	:Gd1 	 = Gd1           * Q10_Gd1^((celsius-temp)/10.)	  : scale with temp, using Q10\n"
+  "	:Gd2 	 = Gd2           * Q10_Gd2^((celsius-temp)/10.)	  : scale with temp, using Q10\n"
+  "	:Gr  	 = Gr             * Q10_Gr^((celsius-temp)/10.)   : scale with temp, using Q10\n"
+  "\n"
+  "	if (Irradiance>0) {\n"
+  "		logphi0  = log(1. + Irradiance / 0.024)      : unit-less\n"
+  "	}\n"
+  "	else {\n"
+  "		logphi0 = 0.	 							 : for consistency\n"
+  "	}\n"
+  "	e12      = e12dark + 0.005 * logphi0             : ms^-1\n"
+  "	e21      = e21dark + 0.004 * logphi0             : ms^-1\n"
+  "\n"
+  "	S0       = 0.5 * (1. + tanh(120.*(100. * Irradiance - 0.1))) : unit-less\n"
+  "	Ephoton  = 1.E9 * hc / wavelength          : J, scaling wavelength from nm to m	\n"
+  "	flux     = 1000. * Irradiance / Ephoton    : 1/(s*m^2), scaling irradiance from mW/mm^2 to W/m^2\n"
+  "	F        = flux  * sigma_retinal / (wloss * 1000.) : ms^-1, scaling F from 1/s to 1/ms\n"
+  "}\n"
+  "UNITSON\n"
+  "\n"
+  "NET_RECEIVE (w) {\n"
+  "    if (flag == 1) { : ignore any but self-events with flag == 1. This may not be necessary... see e.g. nrn/src/nrnoc/intfire1.mod\n"
+  "        :phi = phiOn\n"
+  "        Irradiance = light_intensity\n"
+  "        net_send(Dt_on, 0) : Schedule the next off phase\n"
+  "    } else { : Turn the light off\n"
+  "        :phi = 0\n"
+  "        Irradiance=0\n"
+  "        if (tally > 0) { : Schedule the next on phase\n"
+  "            net_send(Dt_off, 1)\n"
+  "            tally = tally - 1\n"
+  "        }\n"
+  "    }\n"
+  "}\n"
+  ;
 #endif

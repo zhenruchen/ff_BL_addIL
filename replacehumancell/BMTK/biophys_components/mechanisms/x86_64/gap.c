@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* NOT VECTORIZED */
 #define NRN_VECTORIZED 0
 #include <stdio.h>
@@ -72,6 +72,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern Prop* nrn_point_prop_;
  static int _pointtype;
  static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
@@ -135,7 +144,7 @@ static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
 }
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "gap",
  "r",
  0,
@@ -184,12 +193,16 @@ extern void _cvode_abstol( Symbol**, double*, int);
 	 _hoc_create_pnt, _hoc_destroy_pnt, _member_func);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 3, 3);
   hoc_register_dparam_semantics(_mechtype, 0, "area");
   hoc_register_dparam_semantics(_mechtype, 1, "pntproc");
   hoc_register_dparam_semantics(_mechtype, 2, "pointer");
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 gap /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/gap.mod\n");
+ 	ivoc_help("help ?1 gap /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/gap.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -302,3 +315,30 @@ static void _initlists() {
   if (!_first) return;
 _first = 0;
 }
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/gap.mod";
+static const char* nmodl_file_text = 
+  "NEURON {\n"
+  "	POINT_PROCESS gap\n"
+  "	NONSPECIFIC_CURRENT i\n"
+  "	RANGE r, i\n"
+  "	POINTER vgap\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	v (millivolt)\n"
+  "	vgap (millivolt)\n"
+  "	r = 100000(megohm)\n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "	i (nanoamp)\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "	i = (v - vgap)/r\n"
+  "}\n"
+  "\n"
+  ;
+#endif

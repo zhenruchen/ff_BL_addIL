@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* VECTORIZED */
 #define NRN_VECTORIZED 1
 #include <stdio.h>
@@ -90,6 +90,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
  _extcall_prop = _prop;
@@ -183,7 +192,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "sAHPNE",
  "gsAHPbar_sAHPNE",
  0,
@@ -243,6 +252,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
      _nrn_thread_reg(_mechtype, 2, _update_ion_pointer);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 11, 5);
   hoc_register_dparam_semantics(_mechtype, 0, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "k_ion");
@@ -252,7 +265,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 sAHPNE /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/sahpNE.mod\n");
+ 	ivoc_help("help ?1 sAHPNE /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/sahpNE.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -280,7 +293,7 @@ static int _ode_spec1(_threadargsproto_);
  static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
  rate ( _threadargscomma_ v , casi ) ;
  Dc = Dc  / (1. - dt*( ( ( ( - 1.0 ) ) ) / ctau )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
@@ -628,4 +641,122 @@ _first = 0;
 
 #if defined(__cplusplus)
 } /* extern "C" */
+#endif
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/sahpNE.mod";
+static const char* nmodl_file_text = 
+  ":  iC   fast Ca2+/V-dependent K+ channel\n"
+  "\n"
+  "NEURON {\n"
+  "	SUFFIX sAHPNE\n"
+  "	USEION k READ ek WRITE ik\n"
+  "	USEION cas READ casi VALENCE 2 \n"
+  "        RANGE ik, gk, gsAHPbar\n"
+  "}\n"
+  "\n"
+  "UNITS {\n"
+  "        (mM) = (milli/liter)\n"
+  "	(mA) = (milliamp)\n"
+  "	(mV) = (millivolt)\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	tone_period = 4000  \n"
+  "	NE_period = 500\n"
+  "	NE_start = 64000 : 36000		   : NE beta-R(Low Affinity) Norepinephrine Effect after 1 conditioning trials (9*4000 = 36000)\n"
+  "	NE_stop = 96000\n"
+  "	NE_t1 = 0.9 : 0.9           : Amount(%) of NE effect\n"
+  "	NE_ext1 = 196000\n"
+  "	NE_ext2 = 212000	\n"
+  "	\n"
+  "	NE_period2 = 100\n"
+  "	NE_start2 = 36000		   : NE beta-R(Low Affinity) Norepinephrine Effect after 0 conditioning trials (8*4000 = 32000)\n"
+  "	NE_t2 = 0.7           : Amount(%) of NE effect	\n"
+  "	\n"
+  "	gsAHPbar= 2.318144e-05 : 0.0001	(mho/cm2) : \n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "	v (mV)\n"
+  "	ek (mV)\n"
+  "	casi (mM)\n"
+  "	ik (mA/cm2)\n"
+  "	cinf \n"
+  "	ctau (ms)\n"
+  "	gk (mho/cm2)\n"
+  "}\n"
+  "\n"
+  "STATE {\n"
+  "	c\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "	SOLVE states METHOD cnexp\n"
+  "	gk = gsAHPbar*c       \n"
+  "	ik = gk*(v-ek)*NE1(t)*NE2(t)\n"
+  "}\n"
+  "\n"
+  "INITIAL {\n"
+  "	rate(v,casi)\n"
+  "	c = cinf\n"
+  "}\n"
+  "\n"
+  "DERIVATIVE states {\n"
+  "        rate(v,casi)\n"
+  "	c' = (cinf-c)/ctau\n"
+  "}\n"
+  "\n"
+  "UNITSOFF\n"
+  "\n"
+  "\n"
+  "FUNCTION calf(v (mV), casi (mM)) (/ms) { LOCAL vs, va\n"
+  "	UNITSOFF\n"
+  "	vs=10*log10(1000*casi)\n"
+  "	calf = 0.0048/exp(-0.5*(vs-35))\n"
+  "	UNITSON\n"
+  "}\n"
+  "\n"
+  "FUNCTION cbet(v (mV), casi (mM))(/ms) { LOCAL vs, vb \n"
+  "	UNITSOFF\n"
+  "	  vs=10*log10(1000*casi)\n"
+  "	  cbet = 0.012/exp(0.2*(vs+100))\n"
+  "	UNITSON\n"
+  "}\n"
+  "\n"
+  "UNITSON\n"
+  "\n"
+  "PROCEDURE rate(v (mV), casi (mM)) {LOCAL  csum, ca, cb\n"
+  "	UNITSOFF\n"
+  "	ca=calf(v, casi) \n"
+  "	cb=cbet(v, casi)		\n"
+  "	csum = ca+cb\n"
+  "    if (v < -65 ) {              :::::::::::::::::::::::::::  67.5\n"
+  "	cinf = 0\n"
+  "	} else{\n"
+  "	cinf = ca/csum\n"
+  "	}\n"
+  "	ctau = 48\n"
+  "	UNITSON\n"
+  "}\n"
+  "\n"
+  "FUNCTION NE1(t) {\n"
+  "	    if (t >= NE_start && t <= NE_stop){ 									: During conditioning\n"
+  "			if ((t/tone_period-floor(t/tone_period)) >= (1-NE_period/tone_period)) {NE1 = NE_t1}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {NE1 = NE_t1}\n"
+  "			else {NE1 = 1}}\n"
+  "		else if (t >= NE_ext1 && t <= NE_ext2){								    : During 4trials of Extinction\n"
+  "			if ((t/tone_period-floor(t/tone_period)) >= (1-NE_period/tone_period)) {NE1 = NE_t1}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {NE1 = NE_t1}\n"
+  "			else {NE1 = 1}}		\n"
+  "		else  {NE1 = 1}\n"
+  "	}\n"
+  "FUNCTION NE2(t) {\n"
+  "	    if (t >= NE_start2 && t <= NE_stop){\n"
+  "			if((t/tone_period-floor(t/tone_period)) >= (1-NE_period2/tone_period)) {NE2 = NE_t2}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {NE2 = NE_t2}\n"
+  "			else  {NE2 = 1}}\n"
+  "		else  {NE2 = 1}\n"
+  "	}	\n"
+  ;
 #endif

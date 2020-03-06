@@ -1,0 +1,296 @@
+// Created by A. Alturki (2015)
+
+load_file("nrngui.hoc")
+// cvode_active(1)
+load_file("stdgui.hoc")
+//load_file("LAcells_template.hoc") // Change the template file according to cell-type needed
+load_file("init-cortex.hoc")
+
+//load_file("LAcells_template.hoc")
+//load_file("Main.hoc")
+//load_file("BgGen.hoc")
+//load_file("function_ToneGen.hoc")
+
+///// pyramidal graphs scale ////
+xmin_Pyr = 0
+xmax_Pyr = 2000
+ymin_Pyr = -80
+ymax_Pyr = 40
+
+///// simulation control ////
+secondorder = 2
+dt = 0.1
+steps_per_ms=10
+tstop = 200//80500	// (ms)
+
+/////////////////////////
+// cells Specification //
+/////////////////////////
+
+objref cell
+cell = new Layer5_pyr()
+
+/////////////////////
+// Instrumentation //
+/////////////////////
+///// pyramidal current clamp ////a
+delay_Pyr = 50		//(ms)
+duration_Pyr = 100//(ms)
+amplitude_Pyr = 1000	//(pA)
+
+///// current clamp ////
+objref  ccl, cclA, cclB, cclC, cclI
+
+cell.soma cclA = new currentclamp(0.5)
+cclA.del = delay_Pyr		// (ms)
+cclA.dur = duration_Pyr		// (ms)
+cclA.amp = amplitude_Pyr*1e-3	// (gna)
+
+//celsius = 31
+v_init = -70
+
+
+/////////////////////////////////////////////////////////////
+/////////////////////   Synapse model   ////////////////////
+/////////////////////////////////////////////////////////////
+
+/*
+gna = 0.015 // 0.045
+proc A1() {
+cell.soma.gbar_na3 = 3*$1
+cell.atrunk.gbar_na3 = 1*$1
+cell.adendR.gbar_na3 = $1
+cell.adendL.gbar_na3 = $1
+cell.p_dend.gbar_na3 = $1
+}
+A1 (gna)
+
+gnap = 0.000551
+proc A2() {
+cell.soma.gbar_nap = 1*$1
+cell.atrunk.gbar_nap = 1*$1     
+cell.adendR.gbar_nap = 0*$1
+cell.adendL.gbar_nap = 0*$1
+cell.p_dend.gbar_nap = 0*$1
+cell.p_dend.gbar_nap(1/14) = 0.8*$1
+}
+A2(gnap)
+
+gkdr = 0.002
+proc A3() {
+cell.soma.gbar_kdr = 1*$1
+cell.atrunk.gbar_kdr = 1*$1
+cell.adendR.gbar_kdr = 1*$1
+cell.adendL.gbar_kdr = 1*$1
+cell.p_dend.gbar_kdr = 1*$1 
+}
+A3 (gkdr)
+
+ghd = 1.5e-5
+proc A4() {
+cell.soma.ghdbar_hd = $1
+cell.atrunk.ghdbar_hd = $1
+cell.adendR.ghdbar_hd = $1
+cell.adendL.ghdbar_hd = $1
+cell.p_dend.ghdbar_hd = $1 
+}
+A4(ghd)
+
+gca = 0.00055
+proc A5() {
+cell.soma.gcabar_cadyn = 1*$1
+cell.atrunk.gcabar_cadyn = 1*$1
+cell.adendR.gcabar_cadyn = 1*$1
+cell.adendL.gcabar_cadyn = 1*$1
+cell.p_dend.gcabar_cadyn = 1*$1 
+}
+A5(gca)
+
+gm = 0.00224
+proc A6() {
+cell.soma.gbar_im = 1*$1
+cell.atrunk.gbar_im = 1*$1
+cell.adendR.gbar_im = 0*$1
+cell.adendL.gbar_im = 0*$1
+cell.p_dend.gbar_im = 0*$1
+cell.p_dend.gbar_im(1/14) = 0.8*$1
+}
+A6(gm)
+
+gsAHP = 0.00035 // Type-A: 0.0012 // Type-B: 0.00085 // Type-C: 0.0002
+proc A7() {
+cell.soma.gsAHPbar_sAHP = 1*$1
+cell.atrunk.gsAHPbar_sAHP = 0*$1
+cell.adendR.gsAHPbar_sAHP = 0*$1
+cell.adendL.gsAHPbar_sAHP = 0*$1
+cell.p_dend.gsAHPbar_sAHP = 0*$1 
+}
+A7(gsAHP)
+
+gkap = 0.002
+proc A8() {
+cell.soma.gkabar_kap = 1*$1
+cell.atrunk.gkabar_kap = 1*$1
+cell.adendR.gkabar_kap = 1*$1
+cell.adendL.gkabar_kap = 1*$1
+cell.p_dend.gkabar_kap = 0*$1
+}
+A8(gkap)
+
+gleak = 3e-5
+proc A9() {
+cell.soma.glbar_leak = 1*$1
+cell.atrunk.glbar_leak = 1.57*$1
+cell.adendR.glbar_leak = 1.57*$1
+cell.adendL.glbar_leak = 1.57*$1
+cell.p_dend.glbar_leak = 1.57*$1
+}
+A9(gleak)
+*/
+
+///////////////////////////////////////////////////////////////////////////////
+SubVBoxNum = 3 // 4
+objref MainHBoxObj,SubVBoxObj[SubVBoxNum]
+
+proc MainBox() { local i
+		MainHBoxObj = new HBox()
+		for i=0,SubVBoxNum-1 SubVBoxObj[i] = new VBox()
+		SubVBoxObj[0].intercept(1)
+			newPlotVoltage1()
+			newPlotVoltage2()
+			//newPlotVoltage3()
+			newPlotVoltage5()
+			newPlotCurrent5()
+
+		SubVBoxObj[0].intercept(0)
+		SubVBoxObj[1].intercept(1)
+			/*xpanel(" ")
+			xvalue("gna","gna",1,"A1(gna)")
+			xvalue("gnap","gnap",1,"A2(gnap)")
+			xvalue("gkdr","gkdr",1,"A3(gkdr)")
+			xvalue("ghd","ghd",1,"A4(ghd)")
+			xvalue("gca","gca",1,"A5(gca)")
+			xvalue("gm","gm",1,"A6(gm)")
+			xvalue("gsAHP","gsAHP",1,"A7(gsAHP)")
+			xvalue("gkap","gkap",1,"A8(gkap)")
+			xvalue("gleak","gleak",1,"A9(gleak)")
+			xpanel(0)	*/
+			access cell.soma
+			nrnsecmenu(.5,1)
+		SubVBoxObj[1].intercept(0)
+		
+		SubVBoxObj[2].intercept(1)
+			nrncontrolmenu()
+			nrnpointmenu(cclA)
+			//access cell.dend
+			nrnsecmenu(.5,1)
+            //access cell.p_dend
+            nrnsecmenu(.5,1)          
+		SubVBoxObj[2].intercept(0)
+		MainHBoxObj.intercept(1)
+			for i=0,SubVBoxNum-1 SubVBoxObj[i].map()
+		MainHBoxObj.intercept(0)
+		MainHBoxObj.map("Re-Tune",10,25,800,600)
+}
+
+strdef tstr,tstr1
+
+proc newPlotVoltage1() {
+	newPlot(0,tstop,-100,50)
+	graphItem.save_name("graphList[0].")
+	graphList[0].append(graphItem)
+	graphItem.addexpr("cell.soma.v(.5)")
+	graphItem.label(.08,.925,"mV")
+}
+proc newPlotVoltage2() {
+	newPlot(0,tstop,-100,50)
+	graphItem.save_name("graphList[0].")
+	graphList[0].append(graphItem)
+	//graphItem.addexpr("cell.dend.v(.5)")
+	graphItem.label(.08,.925,"mV")
+}
+proc newPlotVoltage5() {
+	newPlot(0,tstop,-100,50)
+	graphItem.save_name("graphList[0].")
+	graphList[0].append(graphItem)
+	//graphItem.addexpr("cell.p_dend.v(.5)")
+	graphItem.label(.08,.925,"mV")
+}
+
+proc newPlotVoltage4() {
+	newPlot(0,tstop,-100,50)
+	graphItem.save_name("graphList[0].")
+	graphList[0].append(graphItem)
+	//graphItem.addexpr("cell.adendL.v(.5)")
+	graphItem.label(.08,.925,"mV")
+}
+
+proc newPlotVoltage3() {
+	newPlot(0,tstop,-100,50)
+	graphItem.save_name("graphList[0].")
+	graphList[0].append(graphItem)
+	//graphItem.addexpr("cell.adendR.v(.5)")
+	graphItem.label(.08,.925,"mV")
+}
+
+proc newPlotCurrent() {
+	newPlot(0,tstop,-0.2,0.2)
+	graphItem.save_name("graphList[2].")
+	graphList[1].append(graphItem)
+	//graphItem.addexpr("cell.soma.ik",1,2)
+	//graphItem.addexpr("(cell.soma.v(0.5)- cell.atrunk.v(0.5))/(R_S + R_atrunk)",1,2)  // (0.016129))/(0.0382 + 12.16)",1,2)
+	//graphItem.addexpr("cell.soma.ik",2,2)
+	//tstr1 = units(&cell.soma.ina)
+	graphItem.label(.08,.925,tstr1)
+}
+
+proc newPlotCurrent2() {
+	newPlot(0,tstop,-0.3,0.15)
+	graphItem.save_name("graphList[2].")
+	graphList[1].append(graphItem)
+	//graphItem.addexpr("cell.soma.ica",1,2)
+	//graphItem.addexpr("(cell.soma.v(0.5) - cell.p_dend.v(0.5))/(R_S + R_b)",1,2)
+	//graphItem.addexpr("cell.dend.ik",2,2)
+	//tstr1 = units(&cell.atrunk.ina)
+	//graphItem.label(.08,.925,tstr1)
+}
+
+proc newPlotCurrent3() {
+	newPlot(0,tstop,-0.3,0.15)
+	graphItem.save_name("graphList[2].")
+	graphList[1].append(graphItem)
+	//graphItem.addexpr("cell.soma.ina",1,2)
+	//graphItem.addexpr("(cell.atrunk.v(0.5) - cell.adendL.v(0.5))/(R_adendL + R_atrunk)",1,2)
+	//graphItem.addexpr("cell.adendL.ik",2,2)
+	//tstr1 = units(&cell.adendL.ina)
+	//graphItem.label(.08,.925,tstr1)
+}
+
+proc newPlotCurrent4() {
+	newPlot(0,tstop,-0.3,0.15)
+	graphItem.save_name("graphList[2].")
+	graphList[1].append(graphItem)
+	//graphItem.addexpr("(cell.atrunk.v(0.5) - cell.adendR.v(0.5))/(R_adendR + R_atrunk)",1,2)
+	//graphItem.addexpr("cell.adendR.ik",2,2)
+	//tstr1 = units(&cell.adendR.ina)
+	//graphItem.label(.08,.925,tstr1)
+}
+
+proc newPlotCurrent5() {
+	newPlot(0,tstop,-0.2,0.2)
+	graphItem.save_name("graphList[2].")
+	graphList[1].append(graphItem)
+	//graphItem.addexpr("cell.soma.i_im",1,2)
+	//graphItem.addexpr("cell.soma.i_nap",2,2)
+	//graphItem.addexpr("cell.soma.i_kap",3,2)
+	//graphItem.addexpr("cell.soma.i_kdr",4,2)
+	//graphItem.addexpr("cell.soma.i_sAHP",5,2)
+	//graphItem.addexpr("cell.soma.i_hd",6,2)
+	//graphItem.addexpr("cell.soma.casi",3,2)
+	//graphItem.addexpr("cell.soma.i_cadyn",7,2)
+	//graphItem.addexpr("cell.soma.il_leak",9,2)
+	graphItem.label(.08,.925,tstr1)
+}
+
+MainBox()
+run()

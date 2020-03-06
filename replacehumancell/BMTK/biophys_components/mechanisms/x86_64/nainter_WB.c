@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* VECTORIZED */
 #define NRN_VECTORIZED 1
 #include <stdio.h>
@@ -92,6 +92,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
  _extcall_prop = _prop;
@@ -159,7 +168,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "nainter_WB",
  "gnabar_nainter_WB",
  0,
@@ -217,6 +226,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
      _nrn_thread_reg(_mechtype, 2, _update_ion_pointer);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 14, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "na_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "na_ion");
@@ -225,7 +238,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 nainter_WB /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/nainter_WB.mod\n");
+ 	ivoc_help("help ?1 nainter_WB /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/nainter_WB.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -255,7 +268,7 @@ static int _ode_spec1(_threadargsproto_);
  rate ( _threadargscomma_ v ) ;
  Dm = Dm  / (1. - dt*( ( ( ( - 1.0 ) ) ) / mtau )) ;
  Dh = Dh  / (1. - dt*( ( ( ( - 1.0 ) ) ) / htau )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
@@ -560,4 +573,98 @@ _first = 0;
 
 #if defined(__cplusplus)
 } /* extern "C" */
+#endif
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/nainter_WB.mod";
+static const char* nmodl_file_text = 
+  ": spike-generating sodium channel (interneuron)\n"
+  "\n"
+  "NEURON {\n"
+  "	SUFFIX nainter_WB\n"
+  "	USEION na READ ena WRITE ina\n"
+  "	RANGE gnabar, ina\n"
+  "	RANGE minf, hinf, mtau, htau\n"
+  "}\n"
+  "\n"
+  "UNITS {\n"
+  "	(mA) = (milliamp)\n"
+  "	(mV) = (millivolt)\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	v (mV)\n"
+  "	dt (ms)\n"
+  "	gnabar = 0.035 (mho/cm2) <0,1e9>\n"
+  "	ena = 55.0 (mV)\n"
+  "}\n"
+  "\n"
+  "STATE {\n"
+  "	m h\n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "	ina (mA/cm2)\n"
+  "	minf \n"
+  "	hinf \n"
+  "	mtau (ms)\n"
+  "	htau (ms)\n"
+  "	gna (mho/cm2)\n"
+  "}\n"
+  "\n"
+  "INITIAL {\n"
+  "	rate(v)\n"
+  "	m = minf\n"
+  "	h = hinf\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "	SOLVE states METHOD cnexp\n"
+  "	gna = gnabar*m*m*m*h\n"
+  "	ina = gna*(v-ena)\n"
+  "}\n"
+  "\n"
+  "DERIVATIVE states {\n"
+  "	rate(v)\n"
+  "	m' = (minf-m)/mtau\n"
+  "	h' = (hinf-h)/htau\n"
+  "}\n"
+  "\n"
+  "UNITSOFF\n"
+  "\n"
+  "FUNCTION malf(v(mV)) {\n"
+  "	malf = -1000.0*0.1*(v+35.0)/(exp(-0.1*(v+35.0))-1.0)\n"
+  "}\n"
+  "\n"
+  "FUNCTION mbet(v(mV)) {\n"
+  "	mbet = 1000.0*4.0*exp(-(v+60.0)/18.0)\n"
+  "}	\n"
+  "\n"
+  "FUNCTION half(v(mV)) {\n"
+  "	half = 5.0*0.07*exp(-(v+58.0)/20.0)\n"
+  "}\n"
+  "\n"
+  "FUNCTION hbet(v(mV)) {\n"
+  "	hbet = 5.0*1.0/(exp(-0.1*(v+28.0))+1.0)\n"
+  "}\n"
+  "\n"
+  "PROCEDURE rate(v(mV)) { LOCAL msum, hsum, ma, mb, ha, hb\n"
+  "\n"
+  "	ma = malf(v) \n"
+  "	mb = mbet(v) \n"
+  "	ha = half(v) \n"
+  "	hb = hbet(v)\n"
+  "	\n"
+  "	msum = ma+mb\n"
+  "	minf = ma/msum\n"
+  "	mtau = 1.0/(msum)\n"
+  "	\n"
+  "	hsum = ha+hb\n"
+  "	hinf = ha/hsum\n"
+  "	htau = 1.0/(hsum)\n"
+  "}\n"
+  "\n"
+  "UNITSON\n"
+  "\n"
+  ;
 #endif

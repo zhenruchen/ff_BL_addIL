@@ -1,0 +1,74 @@
+load_file("nrngui.hoc")
+load_file("init-cortex.hoc")
+
+objref PL2xx,cclA
+PL2xx= new Layer2_pyr()
+PL2xx.soma cclA = new currentclamp(0.5)
+cclA.del = 0		// (ms)
+cclA.dur = 100		// (ms)
+cclA.amp = 1000*1e-3	// (nA)
+
+{
+xpanel("RunControl", 0)
+v_init = -65
+xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+xbutton("Init & Run","run()")
+xbutton("Stop","stoprun=1")
+runStopAt = 200
+xvalue("Continue til","runStopAt", 1,"{continuerun(runStopAt) stoprun=1}", 1, 1 )
+runStopIn = 1
+xvalue("Continue for","runStopIn", 1,"{continuerun(t + runStopIn) stoprun=1}", 1, 1 )
+xbutton("Single Step","steprun()")
+t = 160
+xvalue("t","t", 2 )
+tstop = 160
+xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+dt = 0.025
+xvalue("dt","dt", 1,"setdt()", 0, 1 )
+steps_per_ms = 40
+xvalue("Points plotted/ms","steps_per_ms", 1,"setdt()", 0, 1 )
+screen_update_invl = 0.05
+xvalue("Scrn update invl","screen_update_invl", 1,"", 0, 1 )
+realtime = 8.34
+xvalue("Real Time","realtime", 0,"", 0, 1 )
+xpanel(43,209)
+}
+objectvar save_window_
+{
+save_window_ = new Graph(0)
+save_window_.size(0,160,-100,60)
+//scene_vector_[6] = save_window_
+{save_window_.view(0, -100, 160, 160, 443, 540, 306.24, 172.48)}
+//graphList[0].append(save_window_)
+save_window_.save_name("graphList[0].")
+save_window_.addvar("PL2xx.soma.v( 0.5 )", 2, 1, 0.8, 0.9, 2)
+}
+run()
+//save_window_.addexpr("PL2[0].soma.v( 0.5 )", 1, 1, 0.8, 0.9, 2)
+
+/*
+xpanel("Jones et al. 2007")
+xlabel("Choose a simulation then press Init & Run")
+xlabel("(choose Exit to restart before choosing another simulation")
+xbutton("Wiring configuration for the supra-threshold evoked response","suprathresh()")
+xbutton("Wiring configuration for the non-perceived evoked response","nonperceived()")
+xbutton("Wiring configuration for the perceived evoked response","perceived()")
+xbutton("Exit","quit()")
+xpanel()
+
+proc suprathresh() {
+   load_file("wiring-config_suprathresh.hoc")
+   load_file("demo.ses")
+}
+
+proc nonperceived() {
+   load_file("wiring-config_thresh_nonpercieved.hoc")
+   load_file("demo.ses")
+}
+
+proc perceived() {
+   load_file("wiring-config_thresh_percieved.hoc")
+   load_file("demo.ses")
+}
+
+*/

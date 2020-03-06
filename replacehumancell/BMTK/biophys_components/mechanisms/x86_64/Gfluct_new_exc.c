@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* VECTORIZED */
 #define NRN_VECTORIZED 1
 #include <stdio.h>
@@ -100,6 +100,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern Prop* nrn_point_prop_;
  static int _pointtype;
  static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
@@ -183,7 +192,7 @@ static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
 static int _ode_count(int);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "Gfluct2_exc",
  "E_e",
  "E_i",
@@ -252,6 +261,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
 	 _hoc_create_pnt, _hoc_destroy_pnt, _member_func);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 24, 3);
   hoc_register_dparam_semantics(_mechtype, 0, "area");
   hoc_register_dparam_semantics(_mechtype, 1, "pntproc");
@@ -259,7 +272,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, 0, 0, 0);
  	hoc_reg_ba(_mechtype, _ba1, 11);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 Gfluct2_exc /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/Gfluct_new_exc.mod\n");
+ 	ivoc_help("help ?1 Gfluct2_exc /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/Gfluct_new_exc.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -524,4 +537,237 @@ _first = 0;
 
 #if defined(__cplusplus)
 } /* extern "C" */
+#endif
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/Gfluct_new_exc.mod";
+static const char* nmodl_file_text = 
+  "TITLE Fluctuating conductances\n"
+  "\n"
+  "COMMENT\n"
+  "-----------------------------------------------------------------------------\n"
+  "\n"
+  "	Fluctuating conductance model for synaptic bombardment\n"
+  "	======================================================\n"
+  "\n"
+  "THEORY\n"
+  "\n"
+  "  Synaptic bombardment is represented by a stochastic model containing\n"
+  "  two fluctuating conductances g_e(t) and g_i(t) descibed by:\n"
+  "\n"
+  "     Isyn = g_e(t) * [V - E_e] + g_i(t) * [V - E_i]\n"
+  "     d g_e / dt = -(g_e - g_e0) / tau_e + sqrt(D_e) * Ft\n"
+  "     d g_i / dt = -(g_i - g_i0) / tau_i + sqrt(D_i) * Ft\n"
+  "\n"
+  "  where E_e, E_i are the reversal potentials, g_e0, g_i0 are the average\n"
+  "  conductances, tau_e, tau_i are time constants, D_e, D_i are noise diffusion\n"
+  "  coefficients and Ft is a gaussian white noise of unit standard deviation.\n"
+  "\n"
+  "  g_e and g_i are described by an Ornstein-Uhlenbeck (OU) stochastic process\n"
+  "  where tau_e and tau_i represent the \"correlation\" (if tau_e and tau_i are \n"
+  "  zero, g_e and g_i are white noise).  The estimation of OU parameters can\n"
+  "  be made from the power spectrum:\n"
+  "\n"
+  "     S(w) =  2 * D * tau^2 / (1 + w^2 * tau^2)\n"
+  "\n"
+  "  and the diffusion coeffient D is estimated from the variance:\n"
+  "\n"
+  "     D = 2 * sigma^2 / tau\n"
+  "\n"
+  "\n"
+  "NUMERICAL RESOLUTION\n"
+  "\n"
+  "  The numerical scheme for integration of OU processes takes advantage \n"
+  "  of the fact that these processes are gaussian, which led to an exact\n"
+  "  update rule independent of the time step dt (see Gillespie DT, Am J Phys \n"
+  "  64: 225, 1996):\n"
+  "\n"
+  "     x(t+dt) = x(t) * exp(-dt/tau) + A * N(0,1)\n"
+  "\n"
+  "  where A = sqrt( D*tau/2 * (1-exp(-2*dt/tau)) ) and N(0,1) is a normal\n"
+  "  random number (avg=0, sigma=1)\n"
+  "\n"
+  "\n"
+  "IMPLEMENTATION\n"
+  "\n"
+  "  This mechanism is implemented as a nonspecific current defined as a\n"
+  "  point process.\n"
+  "\n"
+  "\n"
+  "PARAMETERS\n"
+  "\n"
+  "  The mechanism takes the following parameters:\n"
+  "\n"
+  "     E_e = 0  (mV)		: reversal potential of excitatory conductance\n"
+  "     E_i = -75 (mV)		: reversal potential of inhibitory conductance\n"
+  "\n"
+  "     g_e0 = 0.0121 (umho)	: average excitatory conductance\n"
+  "     g_i0 = 0.0573 (umho)	: average inhibitory conductance\n"
+  "\n"
+  "     std_e = 0.0030 (umho)	: standard dev of excitatory conductance\n"
+  "     std_i = 0.0066 (umho)	: standard dev of inhibitory conductance\n"
+  "\n"
+  "     tau_e = 2.728 (ms)		: time constant of excitatory conductance\n"
+  "     tau_i = 10.49 (ms)		: time constant of inhibitory conductance\n"
+  "\n"
+  "\n"
+  "Gfluct2: conductance cannot be negative\n"
+  "\n"
+  "\n"
+  "REFERENCE\n"
+  "\n"
+  "  Destexhe, A., Rudolph, M., Fellous, J-M. and Sejnowski, T.J.  \n"
+  "  Fluctuating synaptic conductances recreate in-vivo--like activity in\n"
+  "  neocortical neurons. Neuroscience 107: 13-24 (2001).\n"
+  "\n"
+  "  (electronic copy available at http://cns.iaf.cnrs-gif.fr)\n"
+  "\n"
+  "\n"
+  "  A. Destexhe, 1999\n"
+  "\n"
+  "-----------------------------------------------------------------------------\n"
+  "ENDCOMMENT\n"
+  "\n"
+  "\n"
+  "\n"
+  "INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}\n"
+  "\n"
+  "NEURON {\n"
+  "	POINT_PROCESS Gfluct2_exc\n"
+  "	RANGE g_e, g_i, E_e, E_i, g_e0, g_i0, g_e1, g_i1\n"
+  "	RANGE std_e, std_i, tau_e, tau_i, D_e, D_i\n"
+  "	RANGE new_seed,i_exc\n"
+  "	NONSPECIFIC_CURRENT i_exc\n"
+  "	THREADSAFE\n"
+  "	POINTER randObjPtr\n"
+  "}\n"
+  "\n"
+  "UNITS {\n"
+  "	(nA) = (nanoamp) \n"
+  "	(mV) = (millivolt)\n"
+  "	(umho) = (micromho)\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	dt		(ms)\n"
+  "\n"
+  "	E_e	= 0 	(mV)	: reversal potential of excitatory conductance\n"
+  "	E_i	= -75 	(mV)	: reversal potential of inhibitory conductance\n"
+  "\n"
+  "	g_e0	= 0.0121 (umho)	: average excitatory conductance\n"
+  "	g_i0	= 0.0573 (umho)	: average inhibitory conductance\n"
+  "\n"
+  "	std_e	= 0.0030 (umho)	: standard dev of excitatory conductance\n"
+  "	std_i	= 0.0066 (umho)	: standard dev of inhibitory conductance\n"
+  "\n"
+  "	tau_e	= 2.728	(ms)	: time constant of excitatory conductance\n"
+  "	tau_i	= 10.49	(ms)	: time constant of inhibitory conductance\n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "    noise\n"
+  "	v	(mV)		: membrane voltage\n"
+  "	i 	(nA)		: fluctuating current\n"
+  "	g_e	(umho)		: total excitatory conductance\n"
+  "	g_i	(umho)		: total inhibitory conductance\n"
+  "	g_e1	(umho)		: fluctuating excitatory conductance\n"
+  "	g_i1	(umho)		: fluctuating inhibitory conductance\n"
+  "	D_e	(umho umho /ms) : excitatory diffusion coefficient\n"
+  "	D_i	(umho umho /ms) : inhibitory diffusion coefficient\n"
+  "	exp_e\n"
+  "	exp_i\n"
+  "	amp_e	(umho)\n"
+  "	amp_i	(umho)\n"
+  "	randObjPtr\n"
+  "	i_exc (nA)\n"
+  "	i_inh  (nA)\n"
+  "}\n"
+  "\n"
+  "INITIAL {\n"
+  "	g_e1 = 0\n"
+  "	g_i1 = 0\n"
+  "	if(tau_e != 0) {\n"
+  "		D_e = 2 * std_e * std_e / tau_e\n"
+  "		exp_e = exp(-dt/tau_e)\n"
+  "		amp_e = std_e * sqrt( (1-exp(-2*dt/tau_e)) )\n"
+  "	}\n"
+  "	if(tau_i != 0) {\n"
+  "		D_i = 2 * std_i * std_i / tau_i\n"
+  "		exp_i = exp(-dt/tau_i)\n"
+  "		amp_i = std_i * sqrt( (1-exp(-2*dt/tau_i)) )\n"
+  "	}\n"
+  "}\n"
+  "\n"
+  "BEFORE BREAKPOINT {\n"
+  "    noise = randGen()\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "\n"
+  "	SOLVE oup\n"
+  "	if(tau_e==0) {\n"
+  "	   g_e = std_e * noise\n"
+  "	   \n"
+  "	}\n"
+  "	if(tau_i==0) {\n"
+  "	   g_i = std_i * noise\n"
+  "	}\n"
+  "	g_e = g_e0 + g_e1\n"
+  "	if(g_e < 0) { g_e = 0 }\n"
+  "	g_i = g_i0 + g_i1\n"
+  "	if(g_i < 0) { g_i = 0 }\n"
+  "	i_exc=g_e * (v - E_e)\n"
+  "	:i_inh=g_i * (v - E_i)\n"
+  "	:i = g_e * (v - E_e) + g_i * (v - E_i)\n"
+  "	:i = i_exc + i_inh\n"
+  "}\n"
+  "\n"
+  "\n"
+  "PROCEDURE oup() {		: use Scop function normrand(mean, std_dev)\n"
+  "   if(tau_e!=0) {\n"
+  "	g_e1 =  exp_e * g_e1 + amp_e * noise\n"
+  "	\n"
+  "	:printf(\"%g \\n\", g_e1)\n"
+  "	\n"
+  "   }\n"
+  "   if(tau_i!=0) {\n"
+  "	g_i1 =  exp_i * g_i1 + amp_i * noise\n"
+  "	:printf(\"%g \\n\", g_i1)\n"
+  "\n"
+  "\n"
+  "   }\n"
+  "}\n"
+  "\n"
+  "\n"
+  "VERBATIM\n"
+  "double nrn_random_pick(void* r);\n"
+  "void* nrn_random_arg(int argpos);\n"
+  "ENDVERBATIM\n"
+  "\n"
+  "FUNCTION randGen() {\n"
+  "VERBATIM\n"
+  "   if (_p_randObjPtr) {\n"
+  "      /*\n"
+  "      :Supports separate independent but reproducible streams for\n"
+  "      : each instance. However, the corresponding hoc Random\n"
+  "      : distribution MUST be set to Random.normal(0,1)\n"
+  "      */\n"
+  "      _lrandGen = nrn_random_pick(_p_randObjPtr);\n"
+  "   }else{\n"
+  "      hoc_execerror(\"Random object ref not set correctly for randObjPtr\",\" only via hoc Random\");\n"
+  "   }\n"
+  "ENDVERBATIM\n"
+  "}\n"
+  "\n"
+  "PROCEDURE setRandObj() {\n"
+  "VERBATIM\n"
+  "   void** pv4 = (void**)(&_p_randObjPtr);\n"
+  "   if (ifarg(1)) {\n"
+  "      *pv4 = nrn_random_arg(1);\n"
+  "   }else{\n"
+  "      *pv4 = (void*)0;\n"
+  "   }\n"
+  "ENDVERBATIM\n"
+  "}\n"
+  ;
 #endif

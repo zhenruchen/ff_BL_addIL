@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* NOT VECTORIZED */
 #define NRN_VECTORIZED 0
 #include <stdio.h>
@@ -92,6 +92,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
  _p = _prop->param; _ppvar = _prop->dparam;
@@ -309,7 +318,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "na3DA",
  "gbar_na3DA",
  "ar2_na3DA",
@@ -365,6 +374,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
      _nrn_thread_reg(_mechtype, 2, _update_ion_pointer);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 13, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "na_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "na_ion");
@@ -373,7 +386,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 na3DA /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/na3DA.mod\n");
+ 	ivoc_help("help ?1 na3DA /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/na3DA.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -446,7 +459,7 @@ static void _hoc_bets(void) {
  Dm = Dm  / (1. - dt*( ( ( ( - 1.0 ) ) ) / mtau )) ;
  Dh = Dh  / (1. - dt*( ( ( ( - 1.0 ) ) ) / htau )) ;
  Ds = Ds  / (1. - dt*( ( ( ( - 1.0 ) ) ) / taus )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int states () {_reset=0;
@@ -769,3 +782,175 @@ static void _initlists() {
  _slist1[2] = &(s) - _p;  _dlist1[2] = &(Ds) - _p;
 _first = 0;
 }
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/na3DA.mod";
+static const char* nmodl_file_text = 
+  "TITLE na3\n"
+  ": Na current \n"
+  ": from Jeff M.\n"
+  ":  ---------- modified -------M.Migliore may97\n"
+  "\n"
+  "NEURON {\n"
+  "	SUFFIX na3DA\n"
+  "	USEION na READ ena WRITE ina\n"
+  "	RANGE  gbar, ar2\n"
+  "	GLOBAL minf, hinf, mtau, htau, sinf, taus,qinf, thinf\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	tone_period = 4000   \n"
+  "	DA_period = 500\n"
+  "	DA_start = 64000		    : D1R(Low Affinity) Dopamine Effect after 6 conditioning trials (14*4000) = 64000)\n"
+  "	DA_stop = 96000\n"
+  "	DA_ext1 = 196000\n"
+  "	DA_ext2 = 212000\n"
+  "	DA_t1 = -0.1 : -0.3 : -0.15            : Amount of DA effect- negative value decreases AP threshold / positive value increases threshold of AP\n"
+  "\n"
+  "	DA_period2 = 100\n"
+  "	DA_start2 = 36000		   : shock Dopamine Effect during shock after 1 conditioning trial\n"
+  "	DA_t2 = -1 : -1 : -0.1           : Amount(%) of DA effect- negative value decreases AP threshold / positive value increases threshold of AP	\n"
+  "	\n"
+  "	gbar = 0.010   	(mho/cm2)	\n"
+  "								\n"
+  "	tha  =  -30	(mV)		: v 1/2 for act	\n"
+  "	qa   = 7.2	(mV)		: act slope (4.5)		\n"
+  "	Ra   = 0.4	(/ms)		: open (v)		\n"
+  "	Rb   = 0.124 	(/ms)		: close (v)		\n"
+  "\n"
+  "	thi1  = -45	(mV)		: v 1/2 for inact 	\n"
+  "	thi2  = -45 	(mV)		: v 1/2 for inact 	\n"
+  "	qd   = 1.5	(mV)	        : inact tau slope\n"
+  "	qg   = 1.5      (mV)\n"
+  "	mmin=0.02	\n"
+  "	hmin=0.5			\n"
+  "	q10=2\n"
+  "	Rg   = 0.01 	(/ms)		: inact recov (v) 	\n"
+  "	Rd   = .03 	(/ms)		: inact (v)	\n"
+  "	qq   = 10        (mV)\n"
+  "	tq   = -55      (mV)\n"
+  "\n"
+  "	thinf  = -50 	(mV)		: inact inf slope	\n"
+  "	qinf  = 4 	(mV)		: inact inf slope \n"
+  "\n"
+  "        vhalfs=-60	(mV)		: slow inact.\n"
+  "        a0s=0.0003	(ms)		: a0s=b0s\n"
+  "        zetas=12	(1)\n"
+  "        gms=0.2		(1)\n"
+  "        smax=10		(ms)\n"
+  "        vvh=-58		(mV) \n"
+  "        vvs=2		(mV)\n"
+  "        ar2=1		(1)		: 1=no inact., 0=max inact.\n"
+  "	ena		(mV)            : must be explicitly def. in hoc\n"
+  "	celsius\n"
+  "	v 		(mV)\n"
+  "}\n"
+  "\n"
+  "\n"
+  "UNITS {\n"
+  "	(mA) = (milliamp)\n"
+  "	(mV) = (millivolt)\n"
+  "	(pS) = (picosiemens)\n"
+  "	(um) = (micron)\n"
+  "} \n"
+  "\n"
+  "ASSIGNED {\n"
+  "	ina 		(mA/cm2)\n"
+  "	thegna		(mho/cm2)\n"
+  "	minf 		hinf 		\n"
+  "	mtau (ms)	htau (ms) 	\n"
+  "	sinf (ms)	taus (ms)\n"
+  "	tha1	\n"
+  "}\n"
+  " \n"
+  "\n"
+  "STATE { m h s}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "        SOLVE states METHOD cnexp\n"
+  "        thegna = gbar*m*m*m*h*s\n"
+  "	ina = thegna * (v - ena)\n"
+  "} \n"
+  "\n"
+  "INITIAL {\n"
+  "	trates(v,ar2)\n"
+  "	m=minf  \n"
+  "	h=hinf\n"
+  "	s=sinf\n"
+  "}\n"
+  "\n"
+  "\n"
+  "FUNCTION alpv(v(mV)) {\n"
+  "         alpv = 1/(1+exp((v-vvh)/vvs))\n"
+  "}\n"
+  "        \n"
+  "FUNCTION alps(v(mV)) {  \n"
+  "  alps = exp(1.e-3*zetas*(v-vhalfs)*9.648e4/(8.315*(273.16+celsius)))\n"
+  "}\n"
+  "\n"
+  "FUNCTION bets(v(mV)) {\n"
+  "  bets = exp(1.e-3*zetas*gms*(v-vhalfs)*9.648e4/(8.315*(273.16+celsius)))\n"
+  "}\n"
+  "\n"
+  "LOCAL mexp, hexp, sexp\n"
+  "\n"
+  "DERIVATIVE states {   \n"
+  "        trates(v,ar2)      \n"
+  "        m' = (minf-m)/mtau\n"
+  "        h' = (hinf-h)/htau\n"
+  "        s' = (sinf - s)/taus\n"
+  "}\n"
+  "\n"
+  "PROCEDURE trates(vm,a2) {  \n"
+  "        LOCAL  a, b, c, qt\n"
+  "        qt=q10^((celsius-24)/10)\n"
+  "		tha1 = tha + DA1(t)	+ DA2(t)\n"
+  "	a = trap0(vm,tha1,Ra,qa)\n"
+  "	b = trap0(-vm,-tha1,Rb,qa)\n"
+  "	mtau = 1/(a+b)/qt\n"
+  "        if (mtau<mmin) {mtau=mmin}\n"
+  "		\n"
+  "	if (v < -57.5 ) {\n"
+  "	minf = 0\n"
+  "	} else{\n"
+  "	minf = a/(a+b)\n"
+  "	}\n"
+  "	\n"
+  "	a = trap0(vm,thi1,Rd,qd)\n"
+  "	b = trap0(-vm,-thi2,Rg,qg)\n"
+  "	htau =  1/(a+b)/qt\n"
+  "        if (htau<hmin) {htau=hmin}\n"
+  "	hinf = 1/(1+exp((vm-thinf)/qinf))\n"
+  "	c=alpv(vm)\n"
+  "        sinf = c+a2*(1-c)\n"
+  "        taus = bets(vm)/(a0s*(1+alps(vm)))\n"
+  "        if (taus<smax) {taus=smax}\n"
+  "}\n"
+  "\n"
+  "FUNCTION trap0(v,th,a,q) {\n"
+  "	if (fabs(v-th) > 1e-6) {\n"
+  "	        trap0 = a * (v - th) / (1 - exp(-(v - th)/q))\n"
+  "	} else {\n"
+  "	        trap0 = a * q\n"
+  " 	}\n"
+  "}	\n"
+  "FUNCTION DA1(t) {\n"
+  "	    if (t >= DA_start && t <= DA_stop){ 									: During conditioning\n"
+  "			if ((t/tone_period-floor(t/tone_period)) >= (1-DA_period/tone_period)) {DA1 = DA_t1}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {DA1 = DA_t1}\n"
+  "			else {DA1 = 0}}\n"
+  "		else if (t >= DA_ext1 && t <= DA_ext2){								: During 4trials of Extinction\n"
+  "			if ((t/tone_period-floor(t/tone_period)) >= (1-DA_period/tone_period)) {DA1 = DA_t1}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {DA1 = DA_t1}\n"
+  "			else {DA1 = 0}}		\n"
+  "		else  {DA1 = 0}\n"
+  "	}\n"
+  "FUNCTION DA2(t) {\n"
+  "	    if (t >= DA_start2 && t <= DA_stop){\n"
+  "			if((t/tone_period-floor(t/tone_period)) >= (1-DA_period2/tone_period)) {DA2 = DA_t2}\n"
+  "			else if ((t/tone_period-floor(t/tone_period)) == 0) {DA2 = DA_t2}\n"
+  "			else  {DA2 = 0}}\n"
+  "		else  {DA2 = 0}\n"
+  "	}\n"
+  ;
+#endif

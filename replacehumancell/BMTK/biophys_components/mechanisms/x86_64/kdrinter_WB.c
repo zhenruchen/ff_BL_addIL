@@ -1,4 +1,4 @@
-/* Created by Language version: 6.2.0 */
+/* Created by Language version: 7.7.0 */
 /* VECTORIZED */
 #define NRN_VECTORIZED 1
 #include <stdio.h>
@@ -86,6 +86,15 @@ extern void hoc_register_limits(int, HocParmLimits*);
 extern void hoc_register_units(int, HocParmUnits*);
 extern void nrn_promote(Prop*, int, int);
 extern Memb_func* memb_func;
+ 
+#define NMODL_TEXT 1
+#if NMODL_TEXT
+static const char* nmodl_file_text;
+static const char* nmodl_filename;
+extern void hoc_reg_nmodl_text(int, const char*);
+extern void hoc_reg_nmodl_filename(int, const char*);
+#endif
+
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
  _extcall_prop = _prop;
@@ -146,7 +155,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static void _ode_matsol_instance1(_threadargsproto_);
  /* connect range variables in _p that hoc is supposed to know about */
  static const char *_mechanism[] = {
- "6.2.0",
+ "7.7.0",
 "kdrinter_WB",
  "gkdrbar_kdrinter_WB",
  0,
@@ -202,6 +211,10 @@ extern void _cvode_abstol( Symbol**, double*, int);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
      _nrn_thread_reg(_mechtype, 2, _update_ion_pointer);
+ #if NMODL_TEXT
+  hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
+  hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
+#endif
   hoc_register_prop_size(_mechtype, 10, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "k_ion");
@@ -210,7 +223,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 kdrinter_WB /home/mizzou/Desktop/BLA_SingleCells-master/fBMTKf/BMTK/PN_IClamp/components/mechanisms/x86_64/kdrinter_WB.mod\n");
+ 	ivoc_help("help ?1 kdrinter_WB /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/kdrinter_WB.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -238,7 +251,7 @@ static int _ode_spec1(_threadargsproto_);
  static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
  rate ( _threadargscomma_ v ) ;
  Dn = Dn  / (1. - dt*( ( ( ( - 1.0 ) ) ) / tau )) ;
- return 0;
+  return 0;
 }
  /*END CVODE*/
  static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
@@ -500,4 +513,78 @@ _first = 0;
 
 #if defined(__cplusplus)
 } /* extern "C" */
+#endif
+
+#if NMODL_TEXT
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/kdrinter_WB.mod";
+static const char* nmodl_file_text = 
+  ": potassium delayed rectifier channel (interneuron)\n"
+  "\n"
+  "NEURON {\n"
+  "	SUFFIX kdrinter_WB\n"
+  "	USEION k READ ek WRITE ik\n"
+  "	RANGE gkdrbar, ik, gkdr, inf, tau\n"
+  "}\n"
+  "\n"
+  "UNITS {\n"
+  "	(mA) = (milliamp)\n"
+  "	(mV) = (millivolt)\n"
+  "}\n"
+  "\n"
+  "PARAMETER {\n"
+  "	v (mV)\n"
+  "	dt (ms)\n"
+  "	gkdrbar = 0.009 (mho/cm2) <0,1e9>\n"
+  "	ek = -90.0 (mV)\n"
+  "}\n"
+  "\n"
+  "STATE {\n"
+  "	n\n"
+  "}\n"
+  "\n"
+  "ASSIGNED {\n"
+  "	ik (mA/cm2)\n"
+  "	inf\n"
+  "	tau (ms)\n"
+  "	gkdr (mho/cm2)\n"
+  "}\n"
+  "\n"
+  "INITIAL {\n"
+  "	rate(v)\n"
+  "	n = inf\n"
+  "}\n"
+  "\n"
+  "BREAKPOINT {\n"
+  "	SOLVE states METHOD cnexp\n"
+  "	gkdr = gkdrbar*n*n*n*n\n"
+  "	ik = gkdr*(v-ek)\n"
+  "}\n"
+  "\n"
+  "DERIVATIVE states {\n"
+  "	rate(v)\n"
+  "	n' = (inf-n)/tau\n"
+  "}\n"
+  "\n"
+  "UNITSOFF\n"
+  "\n"
+  "FUNCTION alf(v(mV)) { \n"
+  "	alf = -5*0.01*(v+34.0)/(exp(-0.1*(v+34.0))-1.0)\n"
+  "}\n"
+  "\n"
+  "FUNCTION bet(v(mV)) {\n"
+  "	bet = 5*0.125*exp(-(v+44.0)/80.0)\n"
+  "}	\n"
+  "\n"
+  "PROCEDURE rate(v(mV)) { LOCAL sum, nalf, nbet\n"
+  "	\n"
+  "	nalf = alf(v)\n"
+  "	nbet = bet(v) \n"
+  "	\n"
+  "	sum = nalf+nbet\n"
+  "	inf = nalf/sum\n"
+  "	tau = 1/(sum)\n"
+  "}\n"
+  "\n"
+  "UNITSON	\n"
+  ;
 #endif
