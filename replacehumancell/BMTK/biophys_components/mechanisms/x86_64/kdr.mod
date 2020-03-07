@@ -1,1 +1,1 @@
-../modfiles/kdr.mod
+../modfiles//kdr.mod
