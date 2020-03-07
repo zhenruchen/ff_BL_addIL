@@ -1,1 +1,1 @@
-../modfiles//dpresyn.mod
+../dpresyn.mod

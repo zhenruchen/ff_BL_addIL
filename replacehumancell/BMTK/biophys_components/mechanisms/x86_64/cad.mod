@@ -1,1 +1,1 @@
-../modfiles//cad.mod
+../cad.mod

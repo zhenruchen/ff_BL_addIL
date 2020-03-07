@@ -206,7 +206,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 ar /root/Desktop/Zhenru/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/ar.mod\n");
+ 	ivoc_help("help ?1 ar /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/x86_64/ar.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -510,7 +510,7 @@ _first = 0;
 #endif
 
 #if NMODL_TEXT
-static const char* nmodl_filename = "/root/Desktop/Zhenru/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/ar.mod";
+static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/ar.mod";
 static const char* nmodl_file_text = 
   "TITLE Anomalous rectifier current for RD Traub, J Neurophysiol 89:909-921, 2003\n"
   "\n"

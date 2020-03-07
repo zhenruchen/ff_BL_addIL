@@ -1,1 +1,1 @@
-../modfiles//catp.mod
+../catp.mod

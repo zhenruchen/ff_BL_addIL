@@ -1,1 +1,1 @@
-../modfiles//tchannel.mod
+../tchannel.mod

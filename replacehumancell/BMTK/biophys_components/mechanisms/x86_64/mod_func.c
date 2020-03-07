@@ -4,8 +4,8 @@ extern int nrnmpi_myid;
 extern int nrn_nobanner_;
 
 extern void _ar_reg(void);
-extern void _ca_reg(void);
 extern void _cad_reg(void);
+extern void _ca_reg(void);
 extern void _cat_reg(void);
 extern void _catp_reg(void);
 extern void _currentclamp_reg(void);
@@ -25,28 +25,28 @@ void modl_reg(){
   if (!nrn_nobanner_) if (nrnmpi_myid < 1) {
     fprintf(stderr, "Additional mechanisms from files\n");
 
-    fprintf(stderr," modfiles//ar.mod");
-    fprintf(stderr," modfiles//ca.mod");
-    fprintf(stderr," modfiles//cad.mod");
-    fprintf(stderr," modfiles//cat.mod");
-    fprintf(stderr," modfiles//catp.mod");
-    fprintf(stderr," modfiles//currentclamp.mod");
-    fprintf(stderr," modfiles//dipole.mod");
-    fprintf(stderr," modfiles//dpresyn.mod");
-    fprintf(stderr," modfiles//gnetstim.mod");
-    fprintf(stderr," modfiles//h.mod");
-    fprintf(stderr," modfiles//kca.mod");
-    fprintf(stderr," modfiles//kdr.mod");
-    fprintf(stderr," modfiles//km.mod");
-    fprintf(stderr," modfiles//na.mod");
-    fprintf(stderr," modfiles//pp_dipole.mod");
-    fprintf(stderr," modfiles//precall.mod");
-    fprintf(stderr," modfiles//tchannel.mod");
+    fprintf(stderr," ar.mod");
+    fprintf(stderr," cad.mod");
+    fprintf(stderr," ca.mod");
+    fprintf(stderr," cat.mod");
+    fprintf(stderr," catp.mod");
+    fprintf(stderr," currentclamp.mod");
+    fprintf(stderr," dipole.mod");
+    fprintf(stderr," dpresyn.mod");
+    fprintf(stderr," gnetstim.mod");
+    fprintf(stderr," h.mod");
+    fprintf(stderr," kca.mod");
+    fprintf(stderr," kdr.mod");
+    fprintf(stderr," km.mod");
+    fprintf(stderr," na.mod");
+    fprintf(stderr," pp_dipole.mod");
+    fprintf(stderr," precall.mod");
+    fprintf(stderr," tchannel.mod");
     fprintf(stderr, "\n");
   }
   _ar_reg();
-  _ca_reg();
   _cad_reg();
+  _ca_reg();
   _cat_reg();
   _catp_reg();
   _currentclamp_reg();

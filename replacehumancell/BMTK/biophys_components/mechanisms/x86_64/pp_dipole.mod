@@ -1,1 +1,1 @@
-../modfiles//pp_dipole.mod
+../pp_dipole.mod

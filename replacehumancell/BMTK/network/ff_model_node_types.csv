@@ -1,8 +1,8 @@
-node_type_id model_template morphology model_type potental pop_name
-100 hoc:Layer2_pyr  biophysical exc Cell_A
-101 hoc:Layer5_pyr  biophysical exc Cell_C
-102 hoc:Inhib  biophysical inh Cell_Bask
-103 hoc:Layer2_pyr  biophysical exc IL13_Pyr
-104 hoc:Inhib  biophysical inh IL13_Bask
-105 hoc:Layer5_pyr  biophysical exc IL56_Pyr
-106 hoc:Inhib  biophysical inh IL56_Bask
+node_type_id model_template morphology model_type pop_name potental
+100 hoc:Layer2_pyr  biophysical Cell_A exc
+101 hoc:Layer5_pyr  biophysical Cell_C exc
+102 hoc:Inhib  biophysical Cell_Bask inh
+103 hoc:Layer2_pyr  biophysical IL13_Pyr exc
+104 hoc:Inhib  biophysical IL13_Bask inh
+105 hoc:Layer5_pyr  biophysical IL56_Pyr exc
+106 hoc:Inhib  biophysical IL56_Bask inh

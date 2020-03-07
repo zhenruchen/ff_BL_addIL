@@ -1,1 +1,1 @@
-../modfiles//dipole.mod
+../dipole.mod
