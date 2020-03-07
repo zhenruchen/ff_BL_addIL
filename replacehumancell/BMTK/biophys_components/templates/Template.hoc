@@ -1,0 +1,499 @@
+/*
+sj3-cortex.hoc
+
+Defined in this file:
+Synapses
+Cell Templates
+Exogenous Feeds
+----------------------------------------
+Cells are instantiated
+Basic connector defined and dipole set-up
+*/
+
+//create acell_home_
+//access acell_home_
+//L=1
+//diam=1
+
+/////////////////////////////////////
+// Receptor Mechanisms realized with Exp2Syn. These can be replaced 
+// with kinetic schemes
+/////////////////////////////////////
+/*
+begintemplate AMPA
+    public s
+    objref s
+    proc init() {
+        s = new Exp2Syn(0.5)
+        s.tau1=0.5
+        s.tau2=5
+        s.e=0
+    }
+endtemplate AMPA
+
+begintemplate NMDA
+    public s
+    objref s
+    proc init() {
+        s = new Exp2Syn(0.5)
+        s.tau1=1
+        s.tau2=20
+        s.e=0
+    }
+endtemplate NMDA
+
+begintemplate GABAA
+    public s
+    objref s
+    proc init() {
+        s = new Exp2Syn(0.5)
+        s.tau1=0.5
+        s.tau2=5
+        s.e=-80
+    }
+endtemplate GABAA
+
+begintemplate GABAB
+    public s
+    objref s
+    proc init() {
+        s = new Exp2Syn(0.5)
+        s.tau1=1
+        s.tau2=20
+        s.e=-80
+    }
+endtemplate GABAB
+*/
+///////////////////////////////////////
+// Template for Layer V Pyramidal Cell
+///////////////////////////////////////
+begintemplate Layer5_pyr
+
+    public init, topol, basic_shape, subsets, geom, biophys
+    public NumSoma, NumDend
+    NumSoma = 1
+    NumDend = 8
+
+    public soma, dend
+    public all, somatic, apical, basal, axonal
+
+    // if gbar_x is declared as 'public', can not be set in biophys() below
+    // public gbar_ar, gbar_cat 
+
+    create soma[NumSoma], dend[NumDend]
+
+    proc init() {
+        
+        topol()
+        subsets()
+        geom()
+        biophys()
+        geom_nseg()
+
+        define_shape()
+    }
+
+    proc topol() { local i
+        connect dend(0), soma[0](1)
+        for i = 1, 2 connect dend[i](0), dend(1)
+        for i = 3, 4 connect dend[i](0), dend[i-1](1)
+        connect dend[5](0), soma[0](0) //was soma(1)this is correct! 
+        for i = 6, 7 connect dend[i](0), dend[5](1)
+        basic_shape()
+    }
+
+    proc basic_shape() {
+        // THESE AND LENGHTHS MUST CHANGE TOGETHER!!!
+        soma[0] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, 23, 0, 1)}
+        dend {pt3dclear() pt3dadd(0, 23, 0, 1) pt3dadd(0, 83, 0, 1)}
+        dend[1] {pt3dclear() pt3dadd(0, 83, 0, 1) pt3dadd(-150, 83, 0, 1)}
+        dend[2] {pt3dclear() pt3dadd(0, 83, 0, 1) pt3dadd(0, 483, 0, 1)}
+        dend[3] {pt3dclear() pt3dadd(0, 483, 0, 1) pt3dadd(0, 883, 0, 1)}
+        dend[4] {pt3dclear() pt3dadd(0, 883, 0, 1) pt3dadd(0, 1133, 0, 1)}
+        dend[5] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, -50, 0, 1)}
+        dend[6] {pt3dclear() pt3dadd(0, -50, 0, 1) pt3dadd(-106, -156, 0, 1)}
+        dend[7] {pt3dclear() pt3dadd(0, -50, 0, 1) pt3dadd(106, -156, 0, 1)}
+    } 
+
+    objref all, somatic, dendritic, apical, basal
+
+    proc subsets() { local i
+        objref all, somatic, apical, basal
+
+        all = new SectionList()
+            soma[0] all.append()
+            for i=0, 7 dend[i] all.append()
+
+        somatic = new SectionList()
+            soma[0] somatic.append()
+
+        // Not needed
+        //dendritic = new SectionList()
+        //    for i=0, 7 dend[i] dendritic.append()
+
+        apical = new SectionList()
+            for i=0, 4 dend[i] apical.append()
+
+        basal = new SectionList()
+            for i=5, 7 dend[i] basal.append()
+
+		axonal = new SectionList()
+
+
+    }
+    //increased lengths and diams by 70% for human size
+    proc geom() {
+        forsec all {  }
+            // soma.L = 13 //BUSH 1999 spike amp smaller
+        soma[0].L=39 //Bush 1993
+        dend.L = 102
+        dend[1].L = 255
+        dend[2].L = 680 //default 400
+        dend[3].L = 680 //default 400
+        dend[4].L = 425
+        dend[5].L = 85
+        dend[6].L = 255 // default 150
+        dend[7].L = 255 // default 150
+            //soma.diam = 18.95 //Bush 1999
+        soma[0].diam = 28.9 //Bush 1993
+        dend.diam = 10.2
+        dend[1].diam = 5.1
+        dend[2].diam = 7.48 //default 4.4
+        dend[3].diam = 4.93 //default 2.9
+        dend[4].diam = 3.4
+        dend[5].diam = 6.8
+        dend[6].diam = 8.5
+        dend[7].diam = 8.5
+    }
+
+    proc geom_nseg() {
+        soma[0] area(.5) // make sure diam reflects 3d points
+        forsec all { if (L < 50) {nseg=1} else {nseg=int(L/50)} }
+    }
+    proc biophys() {
+        /* USING DEFAULT NEURON HH GIVES CORRECT SPIKE WIDTH */
+        forsec all{
+            Ra=200
+            cm=0.85 // decreased by 70%
+            
+        }
+        forsec somatic {
+            insert hh
+            gnabar_hh=0.16 // to match latency with old segmentation
+            gkbar_hh=0.01 //0.01 0.09 for spiking
+            gl_hh=0.0000426 //decreased by 70%
+            el_hh=-65 //default -65
+            insert ca
+            gbar_ca=60// 100 //150 pS/um2=0.00015 S/cm2
+            insert cad
+            taur_cad=20 //20 ms 
+            insert kca
+            gbar_kca=0.0002//0.0002 //(0.00015 mho/cm2= S/cm2)
+            insert km
+            gbar_km=200//200 //10 pS/um2
+            insert cat
+            gbar_cat=0.002
+            insert ar
+            gbar_ar=0.00006
+        }
+        forsec apical {
+            insert hh
+            gnabar_hh=0.14 //0.45 S/cm2
+            gkbar_hh=0.01 //0.09 for spiking
+            gl_hh=0.0000426
+            el_hh=-71 //default -71
+            insert ca
+            gbar_ca=60//100 //15 pS/um2
+            insert cad
+            taur_cad=20 //20 ms 
+            insert kca
+            gbar_kca=0.0002//0.0002 //0.015(mho/cm2= S/cm2)
+            insert km
+            gbar_km=200//200 //10 pS/um2
+            insert cat
+            gbar_cat=0
+            insert ar
+            gbar_ar=0
+
+        } 
+            forsec basal {
+            insert hh
+            gnabar_hh=0.14 //0.45 S/cm2
+            gkbar_hh=0.01 //0.09 for spiking
+            gl_hh=0.0000426
+            el_hh=-71 //default -71
+            insert ca
+            gbar_ca=60//100 //15 pS/um2
+            insert cad
+            taur_cad=20 //20 ms 
+            insert kca
+            gbar_kca=0.0002//0.0002 //0.015(mho/cm2= S/cm2)
+            insert km
+            gbar_km=200//200 //10 pS/um2
+            insert cat
+            gbar_cat=0
+            insert ar
+            gbar_ar=0
+
+        } 
+
+    }  //end proc biophysics 
+
+
+    /*
+    //Each section has it's own set of AMPA,NMDA,GABAA/B each?
+    objref ampa[9],nmda[9],gabaa[9],gabab[9]
+
+    proc synapses() {
+        dend[0]{ ampa[0] = new AMPA() nmda[0] = new NMDA() gabaa[0] = new GABAA() gabab[0] = new GABAB() }
+        dend[1]{ ampa[1] = new AMPA() nmda[1] = new NMDA() gabaa[1] = new GABAA() gabab[1] = new GABAB() }           
+        dend[2]{ ampa[2] = new AMPA() nmda[2] = new NMDA() gabaa[2] = new GABAA() gabab[2] = new GABAB() }           
+        dend[3]{ ampa[3] = new AMPA() nmda[3] = new NMDA() gabaa[3] = new GABAA() gabab[3] = new GABAB() }           
+        dend[4]{ ampa[4] = new AMPA() nmda[4] = new NMDA() gabaa[4] = new GABAA() gabab[4] = new GABAB() }           
+        dend[5]{ ampa[5] = new AMPA() nmda[5] = new NMDA() gabaa[5] = new GABAA() gabab[5] = new GABAB() }           
+        dend[6]{ ampa[6] = new AMPA() nmda[6] = new NMDA() gabaa[6] = new GABAA() gabab[6] = new GABAB() }           
+        dend[7]{ ampa[7] = new AMPA() nmda[7] = new NMDA() gabaa[7] = new GABAA() gabab[7] = new GABAB() }           
+        soma   { ampa[8] = new AMPA() nmda[8] = new NMDA() gabaa[8] = new GABAA() gabab[8] = new GABAB() }
+    }
+    */
+
+endtemplate Layer5_pyr
+
+//////////////////////////////////////////////
+/////////////////////////////////////////////
+//Template for Layer II Pyramidal Cell
+//////////////////////////////////////////////
+
+begintemplate Layer2_pyr
+    public NumSoma, NumDend
+    NumSoma = 1
+    NumDend = 7
+
+    public init, topol, basic_shape, subsets, geom, biophys
+
+    public soma, dend
+    public all, somatic, apical, basal
+
+    objref synlist
+
+    proc init() {
+        topol()
+        subsets()
+        geom()
+        biophys()
+        geom_nseg()
+
+        define_shape()
+    }
+
+    create soma[NumSoma], dend[NumDend]
+
+    proc topol() { local i
+        connect dend(0), soma[0](1)
+        for i = 1, 2 connect dend[i](0), dend(1)
+        connect dend[3](0), dend[2](1)
+        connect dend[4](0), soma[0](0) //was soma(1), 0 is correct!
+        for i = 5, 6 connect dend[i](0), dend[4](1)
+        basic_shape()
+    }
+    proc basic_shape() {
+        soma[0] {pt3dclear() pt3dadd(-50, 765, 0, 1) pt3dadd(-50, 778, 0, 1)}
+        dend {pt3dclear() pt3dadd(-50, 778, 0, 1) pt3dadd(-50, 813, 0, 1)}
+        dend[1] {pt3dclear() pt3dadd(-50, 813, 0, 1) pt3dadd(-250, 813, 0, 1)}
+        dend[2] {pt3dclear() pt3dadd(-50, 813, 0, 1) pt3dadd(-50, 993, 0, 1)}
+        dend[3] {pt3dclear() pt3dadd(-50, 993, 0, 1) pt3dadd(-50, 1133, 0, 1)}
+        dend[4] {pt3dclear() pt3dadd(-50, 765, 0, 1) pt3dadd(-50, 715, 0, 1)}
+        dend[5] {pt3dclear() pt3dadd(-50, 715, 0, 1) pt3dadd(-156, 609, 0, 1)}
+        dend[6] {pt3dclear() pt3dadd(-50, 715, 0, 1) pt3dadd(56, 609, 0, 1)}
+    }
+
+    objref all, somatic, apical, basal, axonal
+
+    proc subsets() { local i
+        objref all, somatic, apical, basal
+        all = new SectionList()
+            soma[0] all.append()
+            for i=0, 6 dend[i] all.append()
+
+        somatic = new SectionList()
+            soma[0] somatic.append()
+
+        // Not needed
+        //dendritic = new SectionList()
+        //    for i=0, 6 dend[i] dendritic.append()
+
+        apical = new SectionList()
+            for i=0, 3 dend[i] apical.append()
+
+        basal = new SectionList()
+            for i=4, 6 dend[i] basal.append()
+
+        axonal = new SectionList()
+
+    }
+    // increased by 70% for human
+    proc geom() {
+        forsec all {  }
+        soma[0].L = 22.1
+        dend.L = 59.5
+        dend[1].L = 340
+        dend[2].L = 306
+        dend[3].L = 238
+        dend[4].L = 85
+        dend[5].L = 255
+        dend[6].L = 255
+        
+        soma[0].diam = 23.4
+        dend.diam = 4.25
+        dend[1].diam = 3.91
+        dend[2].diam = 4.08
+        dend[3].diam = 3.4
+        dend[4].diam = 4.25
+        dend[5].diam = 2.72
+        dend[6].diam = 2.72
+
+    }
+    proc geom_nseg() {
+        soma[0] area(.5) // make sure diam reflects 3d points
+        forsec all { if (L < 50) {nseg=1} else {nseg=int(L/50)} }
+    }
+    proc biophys() {
+        /* USING DEFAULT NEURON HH GIVES CORRECT SPIKE WIDTH */
+        forsec all {
+            Ra = 200
+            cm = 0.6195 // decreased 70% from 2.065
+            }
+        forsec somatic {
+            insert hh
+            gnabar_hh=0.18 // to match latency with old segmentation
+            gkbar_hh=0.01 //0.09
+            gl_hh=0.0000426 //decreased 70% for human
+            el_hh=-65
+            insert km
+            gbar_km=250 //450 pS/um2
+            insert cat
+            gbar_cat=0.0
+            insert ar
+            gbar_ar=0.0
+
+        }
+        forsec apical {
+            insert hh
+            gnabar_hh=0.15//0.45 S/cm2
+            gkbar_hh=0.01 //0.09
+            gl_hh=0.0000426 
+            el_hh=-65
+            insert km
+            gbar_km=250 //450 pS/um2 =uS/cm2
+            insert cat
+            gbar_cat=0.0
+            insert ar
+            gbar_ar=0.0
+
+        } 
+        forsec basal {
+            insert hh
+            gnabar_hh=0.15//0.45 S/cm2
+            gkbar_hh=0.01 //0.09
+            gl_hh=0.0000426 
+            el_hh=-65
+            insert km
+            gbar_km=250 //450 pS/um2 =uS/cm2
+            insert cat
+            gbar_cat=0.0
+            insert ar
+            gbar_ar=0.0
+
+        } 
+
+    }  //end proc biophysics 
+
+
+    /**
+    proc position() { local i
+        soma for i = 0, n3d()-1 {
+            pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+        }
+        x = $1  y = $2  z = $3
+    }
+    proc connect2target() { //$o1 target point process, $o2 returned NetCon
+        soma $o2 = new NetCon(&v(1), $o1)
+    }
+
+    objref ampa[8],nmda[8],gabaa[8],gabab[8]
+    proc synapses() {
+        dend[0]{ ampa[0] = new AMPA() nmda[0] = new NMDA() gabaa[0] = new GABAA() gabab[0] = new GABAB() }
+        dend[1]{ ampa[1] = new AMPA() nmda[1] = new NMDA() gabaa[1] = new GABAA() gabab[1] = new GABAB() }
+        dend[2]{ ampa[2] = new AMPA() nmda[2] = new NMDA() gabaa[2] = new GABAA() gabab[2] = new GABAB() }
+        dend[3]{ ampa[3] = new AMPA() nmda[3] = new NMDA() gabaa[3] = new GABAA() gabab[3] = new GABAB() }
+        dend[4]{ ampa[4] = new AMPA() nmda[4] = new NMDA() gabaa[4] = new GABAA() gabab[4] = new GABAB() }
+        dend[5]{ ampa[5] = new AMPA() nmda[5] = new NMDA() gabaa[5] = new GABAA() gabab[5] = new GABAB() }
+        dend[6]{ ampa[6] = new AMPA() nmda[6] = new NMDA() gabaa[6] = new GABAA() gabab[6] = new GABAB() }
+        soma   { ampa[7] = new AMPA() nmda[7] = new NMDA() gabaa[7] = new GABAA() gabab[7] = new GABAB() }
+    } 
+    */
+
+endtemplate Layer2_pyr
+
+
+/////////////////////////////////////
+// Template for Inhibitory cells
+/////////////////////////////////////
+begintemplate Inhib
+    
+    public NumSoma
+	NumSoma = 1
+    
+    public init //cell,connect2target,ampa,nmda,gabaa,gabab
+    public soma
+    //external AMPA,NMDA,GABAA,GABAB
+
+    //objref ampa[1],nmda[1],gabaa[1],gabab[1]
+    create soma[NumSoma]
+
+    public all, somatic, basal, apical, axonal
+	objref all, somatic, basal, apical, axonal
+	objref this
+
+    proc init(){
+        all = new SectionList()
+        somatic = new SectionList()
+        basal = new SectionList()
+        apical = new SectionList()
+        axonal = new SectionList()
+
+        for i=0,NumSoma soma[i] {
+            all.append()
+            somatic.append()
+        }
+
+        soma[0]{
+            L=39
+            diam=20
+            Ra=200
+            cm=0.85
+            insert hh
+        }
+        //synapses()
+
+        define_shape()
+    }
+
+    /*
+    proc synapses() {
+        cell {
+            ampa = new AMPA()
+            nmda = new NMDA()
+            gabaa = new GABAA()
+            gabab = new GABAB()
+            }
+    }
+    */
+
+    // proc connect2target() {
+    // $o2 = new NetCon(cell(0.5), $o1)
+    //proc connect2target() { //$o1 target point process, $o2 returned NetCon
+    //    cell $o2 = new NetCon(&v(1), $o1)
+    //}
+
+endtemplate Inhib
