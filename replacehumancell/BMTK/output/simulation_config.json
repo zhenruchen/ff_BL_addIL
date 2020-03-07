@@ -16,14 +16,14 @@
     "mthalamus_spikes": {
       "input_type": "spikes",
       "module": "sonata",
-      "input_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/mthalamus_spikes.h5",
+      "input_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\mthalamus_spikes.h5",
       "node_set": "mthalamus"
     }
   },
   "output": {
-    "log_file": "log.txt",
-    "output_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/output",
-    "spikes_file": "spikes.h5"
+    "log_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\output\\log.txt",
+    "output_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\output",
+    "spikes_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\output\\spikes.h5"
   },
   "reports": {
     "v_report": {
@@ -39,38 +39,47 @@
       "sections": "soma"
     }
   },
-  "node_sets_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/node_sets.json",
-  "network": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/circuit_config.json",
-  "config_path": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/simulation_config.json",
-  "config_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK",
+  "node_sets_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\node_sets.json",
+  "network": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\circuit_config.json",
+  "config_path": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\simulation_config.json",
+  "config_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK",
   "components": {
-    "biophysical_neuron_models_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/biophysical_neuron_models",
-    "point_neuron_models_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/point_neuron_models",
-    "templates_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/templates",
-    "synaptic_models_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/synaptic_models",
-    "morphologies_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/morphologies",
-    "mechanisms_dir": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms"
+    "biophysical_neuron_models_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\biophysical_neuron_models",
+    "mechanisms_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\mechanisms",
+    "morphologies_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\morphologies",
+    "point_neuron_models_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\point_neuron_models",
+    "synaptic_models_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\synaptic_models",
+    "templates_dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\templates",
+    "__pycache___dir": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\biophys_components\\__pycache__"
   },
   "networks": {
     "nodes": [
       {
-        "nodes_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/mthalamus_nodes.h5",
-        "node_types_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/mthalamus_node_types.csv"
+        "nodes_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\ff_model_nodes.h5",
+        "node_types_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\ff_model_node_types.csv"
       },
       {
-        "node_types_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/ff_model_node_types.csv",
-        "nodes_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/ff_model_nodes.h5"
+        "nodes_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\mthalamus_nodes.h5",
+        "node_types_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\mthalamus_node_types.csv"
       }
     ],
     "edges": [
       {
-        "edges_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/mthalamus_ff_model_edges.h5",
-        "edge_types_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/mthalamus_ff_model_edge_types.csv"
+        "edges_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\ff_model_ff_model_edges.h5",
+        "edge_types_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\ff_model_ff_model_edge_types.csv"
       },
       {
-        "edges_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/ff_model_ff_model_edges.h5",
-        "edge_types_file": "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/network/ff_model_ff_model_edge_types.csv"
+        "edges_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\mthalamus_ff_model_edges.h5",
+        "edge_types_file": "C:\\Users\\Tyler\\Desktop\\git_stage\\ff_BL_addIL\\replacehumancell\\BMTK\\network\\mthalamus_ff_model_edge_types.csv"
       }
     ]
+  },
+  "node_sets": {
+    "biophysical_nodes": {
+      "model_type": "biophysical"
+    },
+    "point_nodes": {
+      "model_type": "point_process"
+    }
   }
 }

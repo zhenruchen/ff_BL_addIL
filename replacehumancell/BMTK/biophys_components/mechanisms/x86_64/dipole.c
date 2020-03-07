@@ -177,7 +177,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_reg_ba(_mechtype, _ba1, 22);
  	hoc_reg_ba(_mechtype, _ba2, 23);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 dipole /home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/dipole.mod\n");
+ 	ivoc_help("help ?1 dipole /root/Desktop/Zhenru/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/x86_64/dipole.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -270,7 +270,7 @@ _first = 0;
 }
 
 #if NMODL_TEXT
-static const char* nmodl_filename = "/home/mizzou/Desktop/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/dipole.mod";
+static const char* nmodl_filename = "/root/Desktop/Zhenru/ff_BL_addIL/replacehumancell/BMTK/biophys_components/mechanisms/modfiles/dipole.mod";
 static const char* nmodl_file_text = 
   "NEURON {\n"
   "SUFFIX dipole\n"

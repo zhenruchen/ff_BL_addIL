@@ -1,1 +1,1 @@
-../modfiles/gnetstim.mod
+../modfiles//gnetstim.mod
